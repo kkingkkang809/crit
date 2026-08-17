@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="ko" style="--accent:#B26A9E"><head><!-- crit-preview-early: 리더 모드를 첫 페인트 전에 적용해 수정 UI가 깜빡이지 않게 --><script>try{if((window.__CRIT_PREVIEW || new URLSearchParams(location.search).has("preview")))document.documentElement.classList.add("crit-preview")}catch(e){}</script><style>html.crit-preview .stats,html.crit-preview .bartitle,html.crit-preview .tabbar,html.crit-preview .charbar,html.crit-preview #pwbtn,html.crit-preview .chip-edit,html.crit-preview .allbtn,html.crit-preview #sessbtn,html.crit-preview #editbtn,html.crit-preview #savebtn,html.crit-preview #descbtn,html.crit-preview #chatbtn,html.crit-preview #msgrbtn{display:none!important}</style><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[0806] 괴물예찬론</title>
+<style>
+  :root {
+    --accent:#B26A9E;
+    --rt1:#6b5a8e; --rt2:#8e5a7d;
+    /* 전체 색감: 포인트 컬러를 중립색에 은은하게 블렌딩해서 파생 */
+    --bg:     color-mix(in srgb, var(--accent) 5%,  #131216);
+    --panel:  color-mix(in srgb, var(--accent) 8%, #1d1b21);
+    --panel2: color-mix(in srgb, var(--accent) 10%, #26242c);
+    --line:   color-mix(in srgb, var(--accent) 18%, #34313a);
+    --text:   color-mix(in srgb, var(--accent) 5%,  #f0edf3);
+    --dim:    color-mix(in srgb, var(--accent) 12%, #9a95a0);
+    --desc:   color-mix(in srgb, var(--accent) 12%, #d1cdd8);
+  }
+  body.light {
+    --bg:     color-mix(in srgb, var(--accent) 3%,  #f7f6f8);
+    --panel:  color-mix(in srgb, var(--accent) 4%,  #ffffff);
+    --panel2: color-mix(in srgb, var(--accent) 5%,  #efedf1);
+    --line:   color-mix(in srgb, var(--accent) 13%, #d9d6dd);
+    --text:   color-mix(in srgb, var(--accent) 8%, #27242a);
+    --dim:    color-mix(in srgb, var(--accent) 9%, #6f6a76);
+    --desc:   color-mix(in srgb, var(--accent) 15%, #565060);
+  }
+  * { box-sizing:border-box; }
+  /* 테마 연동 커스텀 스크롤바 */
+  html { scrollbar-width:thin; scrollbar-color: color-mix(in srgb, var(--accent) 45%, var(--line)) transparent; }
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:color-mix(in srgb, var(--accent) 45%, var(--line)); border-radius:8px; }
+  ::-webkit-scrollbar-thumb:hover { background:color-mix(in srgb, var(--accent) 62%, var(--line)); }
+  body { margin:0; background:var(--bg); color:var(--text);
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+    line-height:1.65; }
+  .wrap { max-width:860px; margin:0 auto; padding:24px 16px 80px; }
+
+  header.hero { background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    padding:20px 22px; margin-bottom:14px; }
+  /* 블로그에 붙여넣으면 블로그 테마 자체의 h1/본문 CSS가 우리 값보다 우선순위가 높아서
+     타이틀·개요 글씨가 훨씬 커 보였다(실제 피드백) - !important로 블로그 CSS에 안 밀리게 고정 */
+  .hero h1 { margin:0 0 4px; font-size:17px !important; letter-spacing:-.5px; }
+  .hero .sub { color:var(--dim); font-size:13px !important; }
+  /* 세션 정보 */
+  .t-writer { display:inline-flex; align-items:center; vertical-align:middle; color:var(--dim);
+    background:var(--panel2); border:1px solid var(--line); border-radius:999px;
+    padding:2px 10px; font-size:12px; font-weight:600; margin-left:6px; }
+  .s-players { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  .pbadge { background:color-mix(in srgb, var(--accent) 14%, var(--panel2));
+    border:1px solid color-mix(in srgb, var(--accent) 42%, var(--line));
+    border-radius:999px; padding:3px 12px; font-size:12.5px; font-weight:600; }
+  .pbadge-gm { background:color-mix(in srgb, var(--accent) 26%, var(--panel2));
+    border-color:color-mix(in srgb, var(--accent) 60%, var(--line)); }
+  .s-overview { color:var(--desc); font-size:12.5px !important; line-height:1.7; margin:0;
+    border-left:3px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+    padding-left:12px; white-space:pre-line; }
+  #s-writer:empty, #s-subtitle:empty, .s-overview:empty { display:none; }
+  .s-players:empty { display:none; }
+  .stats { display:flex; gap:14px; flex-wrap:wrap; margin-top:12px; font-size:12.5px; color:var(--dim); }
+  .stats b { color:var(--text); font-weight:600; }
+  .stats .hn { color:var(--dim); font-style:italic; }
+
+  .bartitle { font-size:11.5px; color:var(--dim); margin:14px 0 8px; font-weight:600;
+    display:flex; align-items:center; gap:7px; }
+  .allbtn { font-size:10.5px; padding:1px 9px; border-radius:999px; background:var(--panel2);
+    border:1px solid var(--line); color:var(--dim); cursor:pointer; font-family:inherit; line-height:1.5; }
+  .allbtn:hover { color:var(--text); border-color:var(--accent);
+    background:color-mix(in srgb, var(--accent) 18%, var(--panel2)); }
+  .charbar { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 0; }
+  .char-chip { display:flex; align-items:center; gap:7px; background:var(--panel2);
+    border:1px solid var(--line); border-radius:999px; padding:3px 8px 3px 4px;
+    cursor:pointer; user-select:none; transition:.15s; }
+  .char-chip:has(input:not(:checked)) { opacity:.35; }
+  .char-chip input { display:none; }
+  .avatar img, .avatar b {
+    width:30px; height:30px; border-radius:50%; object-fit:cover; display:flex;
+    align-items:center; justify-content:center; }
+  .chip-avatar { display:flex; align-items:center; }
+  .chip-avatar img, .chip-avatar b {
+    width:22px; height:22px; border-radius:50%; object-fit:cover; display:flex; }
+  .char-chip { border-color: color-mix(in srgb, var(--cc) 45%, var(--line)); }
+  .chip-name { font-size:13px; font-weight:600; line-height:1; }
+  .chip-count { font-size:11px; color:var(--dim); line-height:1; }
+  .chip-edit { display:flex; align-items:center; justify-content:center;
+    color:var(--dim); padding:3px; border-radius:6px; }
+  .chip-edit svg { width:14px; height:14px; }
+  .chip-edit:hover { color:var(--text); background:var(--line); }
+
+  .toolbar { position:sticky; top:0; z-index:5; background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:blur(8px); display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    padding:10px 2px; margin-bottom:10px; border-bottom:1px solid var(--line); }
+  .toolbar .tfilter { display:flex; gap:4px; }
+  .toolbar button { background:var(--panel2); color:var(--dim); border:1px solid var(--line);
+    border-radius:8px; padding:5px 11px; font-size:12.5px; cursor:pointer; font-family:inherit; }
+  .toolbar button.on { color:var(--text); border-color:var(--accent);
+    background:color-mix(in srgb, var(--accent) 18%, var(--panel2)); }
+  .toolbar input[type=search] { flex:1; min-width:120px; background:var(--panel2); color:var(--text);
+    border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-size:13px; font-family:inherit; }
+  .toolbar input[type=search]::placeholder { color:color-mix(in srgb, var(--accent) 30%, var(--dim)); }
+  input::placeholder, textarea::placeholder { color:color-mix(in srgb, var(--accent) 30%, var(--dim)); }
+
+  /* 테마 설정 패널 */
+  .settings { position:relative; }
+  .spanel { display:none; position:absolute; right:0; top:36px; z-index:20; width:250px;
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px;
+    box-shadow:0 10px 30px #0008; }
+  .spanel.open { display:block; }
+  .spanel h4 { margin:0 0 8px; font-size:12.5px; color:var(--dim); font-weight:600; }
+  .srow { display:flex; align-items:center; justify-content:space-between; gap:8px;
+    font-size:13px; margin-bottom:8px; }
+  .srow input[type=color] { width:34px; height:24px; border:none; background:none; padding:0; cursor:pointer; }
+  .cwrap { display:flex; align-items:center; gap:6px; }
+  .hexin { width:74px; background:var(--panel2); border:1px solid var(--line); border-radius:6px;
+    color:var(--text); font-size:12px; padding:4px 6px; font-family:Consolas,"D2Coding",monospace; }
+
+  /* 커스텀 체크박스/라디오 (테마 연동 자체 제작) */
+  input[type=checkbox], input[type=radio] {
+    appearance:none; -webkit-appearance:none; width:15px; height:15px; flex:none;
+    border:1.5px solid var(--line); background:var(--panel2); cursor:pointer;
+    margin:0 3px 0 0; vertical-align:-2px; transition:.12s; }
+  input[type=checkbox] { border-radius:4.5px; }
+  input[type=radio] { border-radius:50%; }
+  input[type=checkbox]:hover, input[type=radio]:hover {
+    border-color:color-mix(in srgb, var(--accent) 55%, var(--line)); }
+  input[type=checkbox]:checked { background:var(--accent)
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 7"/></svg>')
+    center/10px 10px no-repeat; border-color:var(--accent); }
+  input[type=radio]:checked { background:var(--accent); border-color:var(--accent);
+    box-shadow:inset 0 0 0 3px var(--panel); }
+  /* 열쇠 버튼 / 비밀번호 입력 */
+  .iconbtn { display:flex; align-items:center; justify-content:center; padding:5px 9px; }
+  .iconbtn.on { color:var(--accent); border-color:var(--accent);
+    background:color-mix(in srgb, var(--accent) 14%, var(--panel2)); }
+  .pwwrap { position:relative; }
+  .pwwrap input { width:100%; background:var(--panel2); border:1px solid var(--line); border-radius:8px;
+    color:var(--text); padding:7px 36px 7px 10px; font-size:13px; font-family:inherit; }
+  .eyebtn { position:absolute; right:4px; top:50%; transform:translateY(-50%); background:none;
+    border:none; color:var(--dim); cursor:pointer; padding:4px; display:flex; }
+  .eyebtn:hover { color:var(--text); }
+  /* 이미지 선택 등 모달 내 버튼 */
+  .mrow button { background:color-mix(in srgb, var(--accent) 16%, var(--panel2)); color:var(--text);
+    border:1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); border-radius:8px;
+    padding:6px 12px; font-size:12.5px; cursor:pointer; font-family:inherit; }
+  .mrow button:hover { background:color-mix(in srgb, var(--accent) 26%, var(--panel2)); }
+  .srow label { display:flex; align-items:center; gap:4px; font-size:12.5px; color:var(--dim); cursor:pointer; }
+  .spanel hr { border:none; border-top:1px solid var(--line); margin:10px 0; }
+
+  /* ── 메시지 블록 ── */
+  .msg { display:flex; gap:10px; padding:7px 10px; border-radius:10px; }
+  .msg + .msg { margin-top:2px; }
+  .msg .avatar { flex:0 0 30px; padding-top:2px; }
+  .msg .mbody { flex:1; min-width:0; }
+  .mhead { display:flex; align-items:baseline; gap:8px; }
+  .mhead .by { font-weight:700; font-size:13.5px; }
+  .mhead .tstamp { font-size:11px; color:var(--dim); }
+  body.no-tstamp .tstamp { display:none; }
+  .mcontent { font-size:14.5px; overflow-wrap:break-word; }
+  .mcontent img { max-width:100%; border-radius:8px; }
+
+  .msg.desc { justify-content:center; text-align:center; color:var(--desc);
+    font-style:italic; padding:10px 34px; }
+  .msg.desc .mcontent { font-size:14px; }
+  .msg.general { background:var(--panel); border:1px solid transparent; }
+  .msg.general:hover { border-color:var(--line); }
+  /* 메신저 스타일: 대사 블록을 메신저 말풍선처럼 - 상대는 왼쪽, 내 캐릭터는 오른쪽으로
+     쏠린 좁은 블록(74%)으로 줄이고, 내 캐릭터는 이름·시각까지 오른쪽 정렬 (판정 표 블록 제외) */
+  body.msgr .msg.general:not(.roll) { max-width:74%; margin-right:auto; }
+  body.msgr .msg.general.mine:not(.roll) { flex-direction:row-reverse; margin-right:0; margin-left:auto; }
+  body.msgr .msg.general.mine:not(.roll) .mbody { text-align:right; }
+  body.msgr .msg.general.mine:not(.roll) .mhead { justify-content:flex-end; }
+  /* 연속 대사: 이름 한 번만, 블록 연결 */
+  .msg.general.cont { margin-top:0; border-top-left-radius:0; border-top-right-radius:0; padding-top:0; }
+  .msg.general:has(+ .msg.general.cont) { border-bottom-left-radius:0; border-bottom-right-radius:0; }
+  .msg.general.cont .mhead { display:none; }
+  .msg.general.cont .avatar img, .msg.general.cont .avatar b { display:none; }
+  /* 프로필 완전히 숨기기: 빈 아바타 칸이 30px+gap만큼 왼쪽 여백으로 계속 남아 어색했다 -
+     아바타 칸 자체를 접어서 텍스트가 지문처럼 여백 없이 시작하게 */
+  .msg.general.noav .avatar { display:none; }
+  .msg.general.noav.noname .mhead { display:none; }
+
+  /* 커스텀 연출 정규화: 배너(가로 전체) / 칩(인라인) 2형태 통일 */
+  .deco-banner { display:block; text-align:center; padding:8px 14px; border-radius:8px;
+    margin:8px 0; font-weight:700; font-style:normal; text-decoration:none; letter-spacing:normal; }
+  .deco-chip { display:inline-block; text-align:center; padding:5px 16px; border-radius:999px;
+    margin:2px 0; font-weight:600; font-style:normal; text-decoration:none; letter-spacing:normal; }
+
+  .inlinerollresult { background:color-mix(in srgb, var(--accent) 24%, var(--panel2));
+    border:1px solid color-mix(in srgb, var(--accent) 42%, var(--line)); border-radius:4px;
+    padding:0 5px; font-weight:700; font-size:13px; cursor:help; }
+
+  /* coc-1 롤템플릿 — 판정 표는 대사 블록 안에서도 가운데 정렬 */
+  .mcontent table { border-collapse:collapse; margin:6px auto; min-width:230px;
+    background:var(--panel2); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  /* 아바타 열(30px+간격 10px)만큼 중심 보정 → 페이지 가운데(서술·칩)와 열 일치 */
+  .msg.general .mcontent table { transform:translateX(-20px); }
+  .mcontent caption { background:linear-gradient(135deg, var(--rt1), var(--rt2)); color:#fff;
+    font-weight:700; font-size:13px; padding:5px 10px; caption-side:top;
+    border-radius:8px 8px 0 0; }
+  .mcontent td { padding:4px 10px; font-size:13px; border-top:1px solid var(--line); }
+  .sheet-template_label { color:var(--dim); }
+  /* 판정결과 행(밝은 배경): 라벨은 짙은 회색으로 */
+  .mcontent tr[style] .sheet-template_label { color:#4a4a4a !important; }
+  /* 판정 결과 셀 가독성 보정: 밝은 배경은 채도 낮춘 짙은 글씨, 짙은 배경은 흰 글씨 */
+  .mcontent td[style*="lightgreen"] { background:#cfe3cd !important; color:#3f6b42 !important; }
+  .mcontent td[style*="background: lime"], .mcontent td[style*="background:lime"] {
+    background:#cde3c4 !important; color:#3f6b42 !important; }
+  .mcontent td[style*="background: green"], .mcontent td[style*="background:green"],
+  .mcontent td[style*="darkgreen"], .mcontent td[style*="background: red"],
+  .mcontent td[style*="background:red"], .mcontent td[style*="darkred"],
+  .mcontent td[style*="crimson"] { color:#ffffff !important; }
+
+  footer { margin-top:28px; color:var(--dim); font-size:12px; text-align:center; }
+  .editing .mcontent, .mcontent[contenteditable="true"] { outline:1px dashed #C98A5B55; border-radius:6px; }
+  .hide { display:none !important; }
+
+  /* 우클릭 메뉴 / 모달 */
+  .ctxmenu { position:fixed; z-index:50; background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; padding:4px; min-width:150px; box-shadow:0 10px 30px #000a; }
+  .ctxmenu button { display:block; width:100%; text-align:left; background:none; border:none;
+    color:var(--text); font-size:13px; padding:7px 12px; border-radius:7px; cursor:pointer; font-family:inherit; }
+  .ctxmenu button:hover { background:color-mix(in srgb, var(--accent) 22%, var(--panel2)); }
+  .overlay { position:fixed; inset:0; z-index:60; background:#0008; display:flex;
+    align-items:center; justify-content:center; }
+  .modal { background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:18px; width:290px; max-height:82vh; overflow-y:auto; }
+  .modal h3 { margin:0 0 12px; font-size:15px; }
+  .mrow { display:flex; align-items:center; justify-content:space-between; gap:10px;
+    font-size:13px; margin-bottom:10px; }
+  .mrow.opts { justify-content:flex-start; gap:22px; }
+  .mrow label { display:flex; align-items:center; gap:5px; cursor:pointer; }
+  .mrow input[type=text] { flex:1; background:var(--panel2); color:var(--text);
+    border:1px solid var(--line); border-radius:8px; padding:6px 9px; font-size:13px; font-family:inherit; }
+  .mrow input[type=color] { width:36px; height:26px; border:none; background:none; padding:0; cursor:pointer; }
+  .mbtns { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
+  .mbtns button { background:var(--panel2); color:var(--text); border:1px solid var(--line);
+    border-radius:8px; padding:6px 14px; font-size:13px; cursor:pointer; font-family:inherit; }
+  .mbtns button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .mbtns button.danger { background:#a84848; border-color:#a84848; color:#fff; }
+  .ctxmenu button.danger { color:#e08a8a; }
+  .ctxmenu .sep { border-top:1px solid var(--line); margin:4px 6px; }
+  .modal.wide { width:min(92vw, 560px); }
+  .modal textarea { width:100%; min-height:190px; background:var(--panel2); color:var(--text);
+    border:1px solid var(--line); border-radius:8px; padding:8px; font-size:12px; line-height:1.5;
+    font-family:Consolas,"D2Coding",monospace; resize:vertical; }
+  .hint { font-size:11.5px; color:var(--dim); margin:6px 0 0; }
+  .dropzone { border:2px dashed var(--line); border-radius:12px; padding:30px 12px;
+    text-align:center; color:var(--dim); font-size:13px; cursor:pointer; transition:.15s; }
+  .dropzone.over { border-color:var(--accent); color:var(--text);
+    background:color-mix(in srgb, var(--accent) 10%, transparent); }
+  .editing #log .msg .avatar { cursor:pointer; }
+  .editing #log .msg .avatar:hover img, .editing #log .msg .avatar:hover b { outline:2px solid var(--accent); }
+</style><style>/* crit-nofocus */ *:focus, *:focus-visible { outline: none !important; box-shadow: none; }</style><style>/* crit-modal-label: 모달 라벨이 세로로 꺾이지 않게 */ .modal .mrow > span:first-child { flex: none; white-space: nowrap; }</style><style>/* crit-modal-theme */ .modal input::placeholder, .modal textarea::placeholder { color: color-mix(in srgb, var(--accent) 18%, var(--dim)); opacity: .85; } .modal textarea { resize: none; }</style><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><!-- crit-font --><style>/* crit-scrollbar: 얇은 테마 스크롤바 (화살표 버튼 제거) */
+* { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--accent) 30%, var(--line)) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--accent) 28%, var(--line)); border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--accent) 48%, var(--line)); }
+*::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+*::-webkit-scrollbar-corner { background: transparent; }
+</style></head>
+<body class="light" data-session='{}'><script>window.CRIT_LOG_DATA = {"title":"[0806] 괴물예찬론","source":"roll20","blocks":[{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<img src=\"./dataurl2_files/KhhesKa.png\" draggable=\"false\" style=\"box-sizing: content-box; border: 0px; vertical-align: middle; max-width: 100%; height: auto;\"><div id=\"menu-OWzMU-u1BocTCF7MOVQ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"GM","ts":null,"tab":null,"html":"<img src=\"./dataurl2_files/eN6lqkR.png\" draggable=\"false\" style=\"box-sizing: content-box; border: 0px; vertical-align: middle; max-width: 100%; height: auto;\"><div id=\"menu-OWzMWRrkW9esyzIEeM6\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background-color: transparent; color: rgb(0, 0, 153); font-style: normal;\">───────────</a> <a style=\"box-sizing: content-box; background-color: transparent; color: rgb(0, 0, 153); font-style: normal;\">෴</a> <a style=\"box-sizing: content-box; background-color: transparent; color: rgb(0, 0, 153); font-style: normal;\">───────────</a><div id=\"menu-OWzMY1BOgtzvckQuSwW\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background-color: transparent; color: rgb(0, 0, 153); font-style: normal; font-size: 10px; position: absolute; width: 1445px; top: 0px; left: 0px;\">Call of Cthulhu 7th Edition Fan-made Scenario</a><div id=\"menu-OWzMY1QLcknxPXzruA5\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background-color: transparent; color: rgb(0, 0, 0); font-style: normal; font-size: 12px;\">가끔은 생각해, 이런 나도 누군가를 구하는</a><a style=\"box-sizing: content-box; background-color: transparent; color: rgb(0, 0, 153); font-style: normal; font-size: 13px;\"> 영웅</a><a style=\"box-sizing: content-box; background-color: transparent; color: rgb(0, 0, 0); font-style: normal; font-size: 12px;\">이 될 수 있었을까.</a><div id=\"menu-OWzMY1_IhqGkzrQaXpr\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(249, 247, 246); color: rgb(0, 0, 153); font-style: normal; border-left: 7px solid rgb(0, 0, 153); font-size: 13px; padding: 3px;\">PC 멜루진</a><div id=\"menu-OWzMY1lcs8CQYQmY6JJ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(249, 247, 246); color: rgb(0, 0, 153); font-style: normal; border-left: 7px solid rgb(0, 0, 153); font-size: 13px; padding: 3px;\">W. 청서</a><div id=\"menu-OWzMY1vfWQ17xtYLnzX\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background-color: transparent; color: rgb(0, 0, 153); font-style: normal; font-size: 13px; position: absolute; width: 1445px; top: 0px; left: 0px;\">Date : 2025.08.06</a><div id=\"menu-OWzMY23iAnFbfP1bDIS\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<img src=\"./dataurl2_files/L8yyJl1.png\" draggable=\"false\" style=\"box-sizing: content-box; border: 0px; vertical-align: middle; max-width: 100%; height: auto;\"><div id=\"menu-OWzMZLGZoibCCIil6cH\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">0. Hero</a><div id=\"menu-OWzMcmwor6gddCfk0p8\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"해가 뜨지도 않은 새벽, 알람 소리가 잠을 깨웁니다.<div id=\"menu-OWzMffCF-PNgeBHN0tn\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"버스로 20분, 한 번 갈아타서 지하철로 30분.<div id=\"menu-OWzMjcfV4PhnhVdugtM\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"엘리베이터와 계단으로 이동하는 시간까지 계산하면 지금 일어나야 회사에 지각하지 않을 것 같습니다.<div id=\"menu-OWzMmOQJU4eKx0iQTkG\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"건조한 눈을 문지르며 커피를 내리면, 뉴스에서는 아나운서가 심각한 표정으로 오늘도 한층 더 다가온 외계 행성에 관해 보도합니다.<div id=\"menu-OWzMpX2khpOz7rb7sy9\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">�크리쳐 사태가 종식되었음에도 새롭게 나타난 인류를 향한 위협에 안전 지대의 대부분이 공포에 떨고 있습니다.�</a><div id=\"menu-OWzMtHOXwQ5WVrXHLl3\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"육안에 보이는 정도의 크기에서 하늘의 반을 뒤덮을 때까지 그리 긴 시간은 걸리지 않았습니다.<div id=\"menu-OWzMvnHFxCw13myATvy\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"낯선 행성의 방문에 관해 길거리에서 사람들에게 인터뷰하는 모습까지 보입니다.<div id=\"menu-OWzMxV8H08qlOSNyXUm\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">�너무 무서워요.�</a><div id=\"menu-OWzN-6M3e-QZZwKkeCG\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">�외계인의 침공?�</a><div id=\"menu-OWzN0MACcVvPL04wc41\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">�지금이 우리에게 영웅이 필요한 시점입니다.�</a><div id=\"menu-OWzN1aIqSpCwDo9woIa\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"가볍게 흘려듣던 탐사자는 문득 영웅이라는 말에 TV를 봅니다.<div id=\"menu-OWzN4o28GZuxtY6sz4i\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"척봐도 수상해 보이는 사람들이 하얀 로브를 입고 정면을 똑바로 응시하며 입을 뗍니다.<div id=\"menu-OWzN6Uy3YSJ_xV6WAA-\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">�하지만 두려워 마세요,\"</a><div id=\"menu-OWzN9b75gAmO5b2pSq1\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">\"영웅은 곧 돌아옵니다.\"</a><div id=\"menu-OWzNBsvloPAMCeVN2Qg\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">\"우리는 구원받을 것입니다.�</a><div id=\"menu-OWzNEFE0xWaCDxjX1b3\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"(흠흠, 전형적인 사이비 단체로군!)<div id=\"menu-OWzNFVJLbAHwTRX3B6K\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"무언가 대책이 있나 싶었는데, 그냥 평범한 사이비 종교였나봅니다.<div id=\"menu-OWzNMEqV58tgn2g1QpO\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"보온병에 커피를 옮겨 담으면, 나갈 시간입니다.<div id=\"menu-OWzNPGFtT6ebaMDIg9p\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"버스 정류장에 도착하면, 버스 시간표를 볼 수 있습니다.<div id=\"menu-OWzNXDnBX1BgPZ4untG\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"(영웅이 돌아온다고 해도 누굴 이야기 하는 거지? 같은 생각 하며 버스 시간표 올려다본다.)<div id=\"menu-OWzNb-lDwrdJfZ4yinc\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"늘상 타고 다니는 버스는 칼같이 3분 후에 도착할 예정입니다.<div id=\"menu-OWzNiRkkMAwLIFSekVs\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"벤치를 보면 지나치게 큰 후드집업을 입고 모자를 뒤집어쓴 5살 남짓의 아이가 무릎을 껴안고 앉아있습니다.<div id=\"menu-OWzNkL7LrgA23T5WL4P\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"멸망한다고 해도 예외는 없고~ (자연스레 흐른 시선이 아이에게로 향한다. 말 걸어봐야하나? 고민하며 주위를 둘러보았다.)<div id=\"menu-OWzNyhlcFc4vYwbRaMA\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"(보호자가 없나?)<div id=\"menu-OWzNzk-OinlokHKipkB\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"보호자라고 부를 만한 사람은 없네요.<div id=\"menu-OWzO9oNik0-bcGULJ_J\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"버스는 3분이 지나도 오지 않습니다.<div id=\"menu-OWzOAcSyGdWzb7yKlN5\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"버스 시간표 아래에 적힌 번호대로 전화를 걸 수 있습니다.<div id=\"menu-OWzOCu_O9tHUaNf8Ja0\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"... ...이럴수가! 아침부터 이상한 방송이 나오더니, 운수가 안 좋은 날이었나?<div id=\"menu-OWzOSpKDlnyYweAKqUz\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"(뾰로통한 얼굴로 시간표 아래에 적힌 번호를 톡톡톡, 입력한다.) (뚜루루루...)<div id=\"menu-OWzOWqqfKZfnkejOTtX\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"전화를 걸면 몇 번 신호음이 가더니 버스 관리 센터의 직원이 전화를 받습니다.<div id=\"menu-OWzOfIA6veWUQgSwaVy\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"직원","ts":null,"tab":null,"html":"안녕하세요, 고객님. 무슨 일으로 전화 주셨을까요?<div id=\"menu-OWzOkmEztTUFET1utZQ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"box... 아니, bus! 버스가 안 와요!! (다급한 목소리로 전화기에 대고 거의 소리를 지른다. 이거 못 타면 그 뒤에 갈아탈 지하철을 놓치게 될 게 뻔했다.)<div id=\"menu-OWzOyZAnlG-01pCQK-g\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"직원","ts":null,"tab":null,"html":"불편을 끼쳐드려 죄송합니다, 고객님.<div id=\"menu-OWzPGu3p2AcCZVyGHit\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"직원","ts":null,"tab":null,"html":"현재 해당 지역의 버스 노선은 운행되지 않고 있습니다. 다수의 버스 기사 분들께서 파업을 선포하셔서요...<div id=\"menu-OWzPNV2OA6cQXP92kdP\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"갑작스럽고 당황스러운 상황입니다.<div id=\"menu-OWzPS2ux6WytlkgSSPp\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"버스가 오지 않으면 40분을 걸어서 지하철이 있는 곳까지 가야 합니다.<div id=\"menu-OWzPTWk7Lr5C3Dt9kei\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"게다가 이런 상황이라면 버스를 타지 못하는 직장인들이 지하철에 잔뜩 몰릴 테고,<div id=\"menu-OWzPVPVdt--jrdbFFwG\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"분명 끔찍한 포화와 연착이 지속되겠죠.<div id=\"menu-OWzPWy8IfOIA_kzskLo\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"직장에 늦으면 사수에게 무슨 소리를 들을지까지 생각이 치닫습니다.<div id=\"menu-OWzPYCT6wgHAvlOn7Zb\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"알겠습니다... ... (힘 빠지는 목소리로 대답하고는 통화 종료 버튼을 꾹, 눌렀다. 그 뒤에 따라 붙는 말은...) 신이시여...<div id=\"menu-OWzPipEXa4wddhz8mBV\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"아침부터! 40분을!... ...<div id=\"menu-OWzPlM7lDklBttmNBCQ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"... ...<div id=\"menu-OWzPs-lY75NBbKgPIab\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"그냥 가지 말까.<div id=\"menu-OWzPsaLfvinVPoWc4_r\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"아이는 꼼짝도 하지 않고 그저 정류장에 앉아 있습니다.<div id=\"menu-OWzPu4U2rU9ZofV1OQr\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"(뜸... 잠깐 고민하다가 아이의 옆에 풀썩 앉았다. 버스도 파업했다는데, 나도 오늘 하루 파업하고 말지!!)<div id=\"menu-OWzQ4QRoSLmWyiaH7yH\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"당신이 자리에 앉으면, 아이는 천천히 고개를 듭니다.<div id=\"menu-OWzQ9KMheyxV9jYUiFu\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"어떤 의지가 보이지 않는 멍한 얼굴입니다.<div id=\"menu-OWzQBPAqqKbAlqehyyS\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"자세히 보니, 무릎이나 팔 곳곳에 멍과 생채기가 알록달록하게 새겨져 있습니다.<div id=\"menu-OWzQChTvuBD-mMajNdm\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"허억. (상처들을 발견하자마자 반사적으로 소리를 냈다. 가만히... 아이의 얼굴과 상처들 번갈아 보다가 심각한 얼굴로 속삭인다.) 혹시, 도움이 필요한 상황...?!<div id=\"menu-OWzQX1eRtuVqdIDkPFd\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"아이는 무슨 말을 해도 대답하지 않거나, 다른 곳을 응시하며 입만 뻐끔거립니다.<div id=\"menu-OWzQaF3qL9oBd68D_Cz\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"아이","ts":null,"tab":null,"html":"ㅡ...<div id=\"menu-OWzQdTqa2g00Yb9MwW1\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"그때, 길 건너에서부터 하얀 로브를 입은 사람들 한 무리가 건너옵니다.<div id=\"menu-OWzQf3OD190fzY8ITYA\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"그들은 아이와 탐사자를 발견하곤 가까이 다가옵니다.<div id=\"menu-OWzQhB092d3WS6lvxLc\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"행인","ts":null,"tab":null,"html":"여기 있었구나! 폐를 끼쳐 죄송합니다.<div id=\"menu-OWzQlFtSjBfa40SnL8i\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"행인","ts":null,"tab":null,"html":"이 아이는 저희 소속이거든요.<div id=\"menu-OWzQmzPKMPnqIkhEhzy\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"행인","ts":null,"tab":null,"html":"자, 가자.<div id=\"menu-OWzQnTiuT6PiJW-bcFZ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"그 모습은 굉장히 익숙합니다.<div id=\"menu-OWzQorJJYveleidR49n\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"탐사자는 이들이 TV에 나왔던 사이비 종교 사람들이라는 사실을 깨닫습니다.<div id=\"menu-OWzQptxx-WI_CpzolS8\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"...아이는 그들을 보더니 안색을 굳히고 탐사자의 옷깃을 살짝 잡습니다.<div id=\"menu-OWzQrsmzXNSWsb8srnJ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"미미하게 고개를 흔들기까지 합니다.<div id=\"menu-OWzQt9Ka7zlPQCahGWZ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"(구라 같은데... 하는 표정으로 로브를 입은 사람을 본다...)<div id=\"menu-OWzR0FLhEONdA2TIhcH\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"아닌데요, 제... 제... 엄... 사촌 동생인데요?<div id=\"menu-OWzR31pXpL6bYfwZ9hc\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"행인","ts":null,"tab":null,"html":"네? 사촌 동생이요?<div id=\"menu-OWzRA31JppLjNDXkDZs\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"행인","ts":null,"tab":null,"html":"(믿기지 않는다는 듯, 의심의 눈초리입니다.)<div id=\"menu-OWzRDIg_OcjUzga_Kzu\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"행인","ts":null,"tab":null,"html":"어떻든 간에, 지금은 저희 단체의 소속인 걸요!<div id=\"menu-OWzRJHsiNkoY_Kjzusd\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"사이비 종교의 사람들은 아이를 엄한 투로 꾸짖습니다.<div id=\"menu-OWzRLRsicV-vxe8fqof\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"이어서 억지로 데려가고자 손을 잡아끌기까지 합니다.<div id=\"menu-OWzRN3T5qYlxv_FeDmJ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"행인","ts":null,"tab":null,"html":"또 교육을 받고 싶은 거야? 착하게 굴어야지!<div id=\"menu-OWzRRd_B0MFyCgIGFQh\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"교육...? 헉, 설마 막, 때리고 그러는 거예요?<div id=\"menu-OWzRf4DddTMDOwQg2XD\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"행인","ts":null,"tab":null,"html":"아실 것 없잖아요?<div id=\"menu-OWzRjhGqIgDZk83HKZh\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"아이가 이를 거부하자 가장 앞에 선 사람이 폭력을 휘두르려는 듯 손을 높이 듭니다.<div id=\"menu-OWzRm2I70Y1QcwnFFRQ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"으아악!! 여기보세요, 사람들!!!<div id=\"menu-OWzRzMAyQNbPuo5R8dD\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"여기서 탐사자가 폭력을 막는다고 선언하거나 부정적인 스탠스를 취하면,<div id=\"menu-OWzS4n2Mb_on5JMVdqI\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"탐사자에게 [용기]라는 기능치가 추가됩니다.<div id=\"menu-OWzS6JUnr0vTL2qsnWc\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: white; color: lightgrey; font-size: 18px; font-family: fantasy, &quot;gulim important&quot;; display: block; padding: 10px 15px 0px; font-style: normal; font-weight: normal; border-radius: 20px 20px 0px 0px; margin-left: -4px; border-width: 1px 1px medium; border-style: none; border-color: currentcolor; border-image: none; box-shadow: lightgrey -4px 4px 0px; letter-spacing: 2px;\">�� HANDOUT ��</a><a style=\"box-sizing: content-box; background: white; font-size: 16px; font-family: &quot;gulim important&quot;; display: block; padding: 10px 15px 0px; font-style: normal; font-weight: normal; margin-left: -4px; border-width: medium 1px; border-style: none; border-color: currentcolor; border-image: none; box-shadow: lightgrey -4px 4px 0px; letter-spacing: -1px;\"><strong style=\"box-sizing: content-box; font-weight: bold;\">기능치 : 용기</strong></a><a style=\"box-sizing: content-box; background: white; color: lightgrey; font-size: 12px; font-family: &quot;gulim important&quot;; display: block; padding: 10px 15px 0px; font-style: normal; font-weight: normal; margin-left: -4px; border-width: medium 1px; border-style: none; border-color: currentcolor; border-image: none; box-shadow: lightgrey -4px 4px 0px; letter-spacing: -1px;\">━━━━━━━━━━━━━━━━━─</a><a style=\"box-sizing: content-box; background: white; font-size: 14px; font-family: &quot;gulim important&quot;; line-height: 25.2px; display: block; padding: 10px 15px 0px; font-style: normal; font-weight: normal; margin-left: -4px; border-width: medium 1px; border-style: none; border-color: currentcolor; border-image: none; box-shadow: lightgrey -4px 4px 0px; letter-spacing: -1px;\">당신은 안전지대의 소시민입니다. 쳇바퀴 같은 규칙을 따라 하루하루 시간을 죽이며 살아가는 게 당신의 일과입니다. 어른이 된 지금, 당신은 스스로 주제와 분수를 알고 있습니다. 이 세상에 당신을 위한 이야기는 없다는 사실을 깨달았습니다. 그런 당신이 누군가를 위해 과감한 짓을 저지르기엔 큰 용기가 필요합니다. 이 기능치의 초기치는 30으로, 실패할 때마다 10씩 상승합니다.</a><a style=\"box-sizing: content-box; background: white; font-size: 3px; font-family: &quot;gulim important&quot;; display: block; padding: 3px 5px; font-style: normal; font-weight: normal; border-radius: 0px 0px 20px 20px; margin-left: -4px; border-width: medium 1px 1px; border-style: none; border-color: currentcolor; border-image: none; box-shadow: lightgrey -4px 4px 0px; letter-spacing: -1px;\">　</a><div id=\"menu-OWzSBva_DL_ftk64sZx\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background-color: transparent; color: rgb(255, 255, 255); font-style: normal; font-size: 16px; display: inline-block; letter-spacing: -1px; border-radius: 18px; padding: 10px 15px; margin-left: -4px; background-image: linear-gradient(315deg, rgb(34, 52, 174) 0%, rgb(25, 23, 20) 74%);\">　　탐사자, 용기 판정　　</a><div id=\"menu-OWzSER8wbok7QkSd0FU\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"roll","sp":"멜루진","ts":null,"tab":null,"html":"<div class=\"sheet-rolltemplate-coc-1\" style=\"box-sizing: content-box;\"><table style=\"box-sizing: content-box; border-spacing: 0px; border-collapse: collapse; background: rgb(255, 255, 255); width: 1384px; border: 1px solid black; color: black;\"><caption style=\"box-sizing: content-box; padding: 2px; color: white; background: black; font-weight: bold; border: 1px solid black; line-height: 1.6em;\">용기 Roll</caption><tbody style=\"box-sizing: content-box;\"><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">기준치:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 30 = 30\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">30</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(30/2) = floor(30/2)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">15</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(30/5) = floor(30/5)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">6</span></td></tr><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"rolled\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">굴림:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 1d100 = (<span class=&quot;basicdiceroll&quot;>42</span>)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">42</span></td></tr><tr style=\"box-sizing: content-box; background: rgb(190, 190, 190);\"><td class=\"sheet-template_label\" data-i18n=\"result\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">판정결과:</td><td class=\"sheet-template_value\" data-i18n=\"fail\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center; background: crimson;\">실패</td></tr></tbody></table></div><div id=\"menu-OWzSHdwqW5dKff6qVDi\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"실패해도 괜찮습니다.<div id=\"menu-OWzSLDWLxxgG_B5nOO8\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"당신은 아직 '아무 행동도 하지 않았'잖아요?<div id=\"menu-OWzSOiXCex16tpMw0p8\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">용기가 10 상승합니다.</a><div id=\"menu-OWzSQX9B0Hacrtga5fX\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background-color: transparent; color: rgb(255, 255, 255); font-style: normal; font-size: 16px; display: inline-block; letter-spacing: -1px; border-radius: 18px; padding: 10px 15px; margin-left: -4px; background-image: linear-gradient(315deg, rgb(34, 52, 174) 0%, rgb(25, 23, 20) 74%);\">　　다시, 용기 판정　　</a><div id=\"menu-OWzSTaOX6MdQ2mmJeEb\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"roll","sp":"멜루진","ts":null,"tab":null,"html":"<div class=\"sheet-rolltemplate-coc-1\" style=\"box-sizing: content-box;\"><table style=\"box-sizing: content-box; border-spacing: 0px; border-collapse: collapse; background: rgb(255, 255, 255); width: 1384px; border: 1px solid black; color: black;\"><caption style=\"box-sizing: content-box; padding: 2px; color: white; background: black; font-weight: bold; border: 1px solid black; line-height: 1.6em;\">용기 Roll</caption><tbody style=\"box-sizing: content-box;\"><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">기준치:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 40 = 40\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">40</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(40/2) = floor(40/2)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">20</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(40/5) = floor(40/5)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">8</span></td></tr><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"rolled\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">굴림:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 1d100 = (<span class=&quot;basicdiceroll&quot;>21</span>)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">21</span></td></tr><tr style=\"box-sizing: content-box; background: rgb(190, 190, 190);\"><td class=\"sheet-template_label\" data-i18n=\"result\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">판정결과:</td><td class=\"sheet-template_value\" data-i18n=\"success\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center; background: darkgreen;\">보통 성공</td></tr></tbody></table></div><div id=\"menu-OWzSUWqX0CQNnQhCeUZ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">이것은 체면이 구겨지고,</a><div id=\"menu-OWzSl7e7XNl1Isj2JPf\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">이성이 흐려져 평소처럼 행동할 수 없게 되더라도 짜낸 용기입니다.</a><div id=\"menu-OWzSnEF6SlT_QcAMlF6\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"성공 시, 탐사자는 자신도 모르게 아이를 안아 들었다는 사실을 깨닫습니다.<div id=\"menu-OWzSozmWke13bgkpd35\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"행인","ts":null,"tab":null,"html":"이게 무슨 짓이죠?<div id=\"menu-OWzSqaLNQh1lB4C7rQa\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"행인","ts":null,"tab":null,"html":"이건 납치에요!<div id=\"menu-OWzSrI3pReRgtxY73sr\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"행인","ts":null,"tab":null,"html":"저희 아이를 돌려주시죠...!<div id=\"menu-OWzStV6g_IssDNLZcwf\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"사이비 종교의 관계자들이 얼굴을 일그러뜨리고 손을 뻗습니다.<div id=\"menu-OWzSuk6UrZoUyRUlfOK\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"넷?! 아뇨, 아뇨, 이건 정당한 납치죠!<div id=\"menu-OWzT08oqH04RoI1EKcC\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"제 <strong style=\"box-sizing: content-box; font-weight: bold;\">사촌 동생</strong>이라니까요!! (물론 거짓말이지만)<div id=\"menu-OWzT2ODgxA4lz8CETyc\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"어디로 도망쳐야 할지 알 수 없습니다.<div id=\"menu-OWzTBKW2PRoXxPcxP5a\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"하지만, 당신은 눈앞의 아이를 구하기 위해 일단 달립니다.<div id=\"menu-OWzTDAco6LKexkIbe06\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"뒤에서부터 당신을 뒤쫓는 소리와 짜증 섞인 욕설이 들립니다.<div id=\"menu-OWzTEn-CUDyObg4jMhT\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"다가오는 종말,<div id=\"menu-OWzTH3FgCE_Qh0ExbtD\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"엉망이 되어버린 하루,<div id=\"menu-OWzTIRXA2waSsgwgAdg\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"부서진 쳇바퀴,<div id=\"menu-OWzTJm-PcJOF-LoAr9g\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"그리고 생애 첫 일탈.<div id=\"menu-OWzTLXCljSQVDLShWZC\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">용기가 10 상승합니다.</a><div id=\"menu-OWzTNDeEyzjyzFyQ_AO\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"당신의 품에 안긴 아이가 처음으로 입을 뗍니다.<div id=\"menu-OWzTPv8k5_jrvsnTWIp\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"아이","ts":null,"tab":null,"html":"ㅡ가야 하는 곳이 있어, 그런데, 혼자서는 갈 수가 없어서...<div id=\"menu-OWzTVPItCMPl3rmYkQ-\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"으응! 나도 가야 하는 곳이 있었는데, 혼자서는 갈 수가 없어서 땡땡이 치려던 중이었거든!<div id=\"menu-OWzTcIPK-9Rokyrlar9\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"어디, 어디로 가야돼?<div id=\"menu-OWzTfK16auavXdOW714\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"아이에게 묻는다면, 아이는 묵묵하게 손목에 있는 기기를 조작해 좌표를 띄워줍니다.<div id=\"menu-OWzTlJKoDADEVCDEldo\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"여기서부터 3블럭 떨어진 거리의 가장 높은 건물입니다.<div id=\"menu-OWzTmlhvBtqCK0yv4Xw\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"건물명은 X 제약회사라고 하네요.<div id=\"menu-OWzTo4yPj6gpA78VaYX\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"버스는 운행하지 않고, 지하철이 있는 대로변에는 사이비 종교의 관계자들이 돌아다니고 있습니다.<div id=\"menu-OWzTrf06xFdQLsNLUfC\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"달려서 갈 수 밖에 없네요.<div id=\"menu-OWzTtS2stmPGtkhZTBo\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"가는 도중에 아이에게 질문을 할 수 있습니다.<div id=\"menu-OWzTvFB7k1e9yJat0cp\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"Aye, aye, sir~ (읏차, 기합과 함께 아이를 단단히 안아들고 기기에 뜬 좌표를 향해 달음박질 한다. 간만에 달리는 듯한 기분.) 로브 쓴 사람들, 나쁜 사람들인 거지?!<div id=\"menu-OWzU6XxgSRk5qXfb8-j\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"아이","ts":null,"tab":null,"html":"... ...<div id=\"menu-OWzUCX3gz4tY9a8AfuR\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"아이","ts":null,"tab":null,"html":"데려가 줘서, 고마워...<div id=\"menu-OWzUEnprOu57ycup7iK\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"아이","ts":null,"tab":null,"html":"저 로브를 쓴 사람들, 사이비 종교의 사람들이야.<div id=\"menu-OWzUHxZe95QqlYq2VHn\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"아이","ts":null,"tab":null,"html":"나는 그 종교에서 실험을 당하고 있었어.<div id=\"menu-OWzUJsVeMoyK3PZX9Sg\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"실험?! (하마터면 뛰던 것을 멈출 뻔 했다. 역시 사이비였잖아, 하는 생각과 함께 인상을 찌푸린다.)<div id=\"menu-OWzU_DOsoSfP-oS9gYx\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"뭐, 뭐 때문에 실험하는 건데?<div id=\"menu-OWzUbWW2-omRtT1HMOm\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"영웅, 뭐 그런 거 만들려고...?<div id=\"menu-OWzUdHAVZKtRqOLM4li\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"내 이름은 오데트,<div id=\"menu-OWzUj6nUspMxF4bG5II\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"영웅을, ...<div id=\"menu-OWzUkcWAKVyb_TqNXO0\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"(짧게 숨을 흡, 들이마시더니 고개를 내젓습니다.)<div id=\"menu-OWzUoMVbuNQyO0H1LLo\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"영웅은 절대 만들어지지 않을 거야. 확신할 수 있어. 왜냐면ㅡ<div id=\"menu-OWzUtjssKLRjT1oZbBi\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"<strong style=\"box-sizing: content-box; font-weight: bold;\"><em style=\"box-sizing: content-box;\">지금, 그 영웅을 깨우러 가는 거니까.</em></strong><div id=\"menu-OWzUwSSCR53jbK60yce\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"어느 정도 대화를 나누면 추격이 따라붙습니다.<div id=\"menu-OWzUxntNMBRw8rlZR1P\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"아까와는 다른 인원이 두 사람을 쫓아옵니다.<div id=\"menu-OWzUzQWSVDxUc_NMNIk\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"빠르게 자리를 벗어나보지만, 그 중 한 명이 이쪽을 향해 총을 겨눕니다.<div id=\"menu-OWzV4jgWc3QrB3Ti4it\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"회피 불가, 1D10의 대미지가 들어옵니다.<div id=\"menu-OWzV74_2J82VMO1xvzX\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"다이스를 굴려주세요.<div id=\"menu-OWzV8PAY57inDT9vZC_\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 1d10 = (<span class=&quot;basicdiceroll&quot;>4</span>)\" style=\"box-sizing: content-box; background-color: rgb(254, 246, 142); border: 2px solid rgb(254, 246, 142); padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em;\">4</span><div id=\"menu-OWzVEQCg-OMN2GqDd_V\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">탕!</a><div id=\"menu-OWzVJnpbLvJPd83ZsWN\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"그와 동시에 스파크가 튑니다.<div id=\"menu-OWzVLIemQxmvfFCpOSR\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"총을 맞은 부분을 확인해보면, 내부의 회로와 부품이 드러나 흉한 모습입니다.<div id=\"menu-OWzVN8NEYa-EF8lkoxf\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"여기서, 탐사자의 핸드아웃이 공개됩니다.<div id=\"menu-OWzVQo3tRtK_hmi8PqO\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: white; color: lightgrey; font-size: 18px; font-family: fantasy, &quot;gulim important&quot;; display: block; padding: 10px 15px 0px; font-style: normal; font-weight: normal; border-radius: 20px 20px 0px 0px; margin-left: -4px; border-width: 1px 1px medium; border-style: none; border-color: currentcolor; border-image: none; box-shadow: lightgrey -4px 4px 0px; letter-spacing: 2px;\">�� HANDOUT ��</a><a style=\"box-sizing: content-box; background: white; font-size: 16px; font-family: &quot;gulim important&quot;; display: block; padding: 10px 15px 0px; font-style: normal; font-weight: normal; margin-left: -4px; border-width: medium 1px; border-style: none; border-color: currentcolor; border-image: none; box-shadow: lightgrey -4px 4px 0px; letter-spacing: -1px;\"><strong style=\"box-sizing: content-box; font-weight: bold;\">멜루진</strong></a><a style=\"box-sizing: content-box; background: white; color: lightgrey; font-size: 12px; font-family: &quot;gulim important&quot;; display: block; padding: 10px 15px 0px; font-style: normal; font-weight: normal; margin-left: -4px; border-width: medium 1px; border-style: none; border-color: currentcolor; border-image: none; box-shadow: lightgrey -4px 4px 0px; letter-spacing: -1px;\">━━━━━━━━━━━━━━━━━─</a><a style=\"box-sizing: content-box; background: white; font-size: 14px; font-family: &quot;gulim important&quot;; line-height: 25.2px; display: block; padding: 10px 15px 0px; font-style: normal; font-weight: normal; margin-left: -4px; border-width: medium 1px; border-style: none; border-color: currentcolor; border-image: none; box-shadow: lightgrey -4px 4px 0px; letter-spacing: -1px;\">지겨운 새벽 기상, 내가 아니어도 되는 업무, 약간 시큼한 기름, 흘러가는대로 내버려두는 평소와 같은 하루하루. 당신은 안전지대의 노동용 안드로이드입니다. 쳇바퀴 같은 규칙을 따라 하루하루 시간을 죽이며 살아가는 게 당신의 일과입니다. 당신은 스스로 주제와 분수를 알고 있습니다. 이 세상에 당신을 위한 이야기는 없다는 사실은 잘 알고 있습니다. 하지만, 당신은 지금 움직이고 있습니다.</a><a style=\"box-sizing: content-box; background: white; font-size: 3px; font-family: &quot;gulim important&quot;; display: block; padding: 3px 5px; font-style: normal; font-weight: normal; border-radius: 0px 0px 20px 20px; margin-left: -4px; border-width: medium 1px 1px; border-style: none; border-color: currentcolor; border-image: none; box-shadow: lightgrey -4px 4px 0px; letter-spacing: -1px;\">　</a><div id=\"menu-OWzVWWvQsqm7FYdoNRl\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"당신의 모델이 된 사람이 또래보다 정의감이 강했기 때문일 수도 있고,<div id=\"menu-OWzVZKXZkao0M7NvrnS\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"또는 아이 또래의 가족이 있었을 수도 있죠.<div id=\"menu-OWzV_RzWDedWIlBZDk7\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"혹은 그저 옳기 때문에 프로그래밍을 거부하고 행동하고 있을지도 모릅니다.<div id=\"menu-OWzVawGdwp63b6wcWCf\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"아주 소소하고 구차한 이유가 이 이야기를 돌아가게 만듭니다.<div id=\"menu-OWzVbz-FmM_b6urdK8H\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">용기가 10 상승합니다.</a><div id=\"menu-OWzVd4AXLgR9-NKr2uG\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"...총알은 계속해서 쏟아집니다.<div id=\"menu-OWzVgmlyCPvdd1tKkGp\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"아무리 내구도가 높은 안드로이드라고 해도, 빗발치는 탄환 속에서 아이를 지키며 손상을 줄일 수는 없습니다.<div id=\"menu-OWzVi-Zto0xb0y6rla3\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"...미안해, 나 때문에...<div id=\"menu-OWzVkK-7zTHJT5vAuBY\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"여기서 선택의 시간입니다.<div id=\"menu-OWzVm3zOccXpQ2IgRe3\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"포기하고 아이를 건네준다거나, 하다못해 여기서부터는 따로 가라고 할 수 있습니다.<div id=\"menu-OWzVn5nOfWhQ10GoxQQ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"그 모든 것에도 포기하지 않고 아이를 끝까지 목적지까지 데려다준다면,<div id=\"menu-OWzVpPaPTfuHGLp8SRj\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background-color: transparent; color: rgb(255, 255, 255); font-style: normal; font-size: 16px; display: inline-block; letter-spacing: -1px; border-radius: 18px; padding: 10px 15px; margin-left: -4px; background-image: linear-gradient(315deg, rgb(34, 52, 174) 0%, rgb(25, 23, 20) 74%);\">　　탐사자, 용기 판정　　</a><div id=\"menu-OWzVqqyrOnXpJiw_sqY\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"...헤헤, 괜찮아! 원래 안드로이드는 세상을 위해서 움직이는 걸. 그리고 내가 생각, 음, 내게 입력된 정보가 말하기를-<div id=\"menu-OWzW1Ra_fcPwA27SYPT\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"지금 이게 세상을 위해 움직이는 거라고 하고 있어!<div id=\"menu-OWzW4-kBQGEF9cEJ-Dr\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"roll","sp":"멜루진","ts":null,"tab":null,"html":"<div class=\"sheet-rolltemplate-coc-1\" style=\"box-sizing: content-box;\"><table style=\"box-sizing: content-box; border-spacing: 0px; border-collapse: collapse; background: rgb(255, 255, 255); width: 1384px; border: 1px solid black; color: black;\"><caption style=\"box-sizing: content-box; padding: 2px; color: white; background: black; font-weight: bold; border: 1px solid black; line-height: 1.6em;\">용기 Roll</caption><tbody style=\"box-sizing: content-box;\"><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">기준치:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 60 = 60\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">60</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(60/2) = floor(60/2)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">30</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(60/5) = floor(60/5)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">12</span></td></tr><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"rolled\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">굴림:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 1d100 = (<span class=&quot;basicdiceroll&quot;>93</span>)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">93</span></td></tr><tr style=\"box-sizing: content-box; background: rgb(190, 190, 190);\"><td class=\"sheet-template_label\" data-i18n=\"result\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">판정결과:</td><td class=\"sheet-template_value\" data-i18n=\"fail\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center; background: crimson;\">실패</td></tr></tbody></table></div><div id=\"menu-OWzW7Ra8OFPkgF9gNKf\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"다시 한 번, 당신의 부품 속 태엽장치가 돌아가는 소리가 들립니다.<div id=\"menu-OWzWCnJSAbPTZ72jupD\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">용기가 10 상승합니다.</a><div id=\"menu-OWzWEaunb__h4ibYG9k\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background-color: transparent; color: rgb(255, 255, 255); font-style: normal; font-size: 16px; display: inline-block; letter-spacing: -1px; border-radius: 18px; padding: 10px 15px; margin-left: -4px; background-image: linear-gradient(315deg, rgb(34, 52, 174) 0%, rgb(25, 23, 20) 74%);\">　　다시 한 번, 용기 판정　　</a><div id=\"menu-OWzWH7UZ3fDETNoEUI-\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"roll","sp":"멜루진","ts":null,"tab":null,"html":"<div class=\"sheet-rolltemplate-coc-1\" style=\"box-sizing: content-box;\"><table style=\"box-sizing: content-box; border-spacing: 0px; border-collapse: collapse; background: rgb(255, 255, 255); width: 1384px; border: 1px solid black; color: black;\"><caption style=\"box-sizing: content-box; padding: 2px; color: white; background: black; font-weight: bold; border: 1px solid black; line-height: 1.6em;\">용기 Roll</caption><tbody style=\"box-sizing: content-box;\"><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">기준치:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 70 = 70\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">70</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(70/2) = floor(70/2)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">35</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(70/5) = floor(70/5)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">14</span></td></tr><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"rolled\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">굴림:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 1d100 = (<span class=&quot;basicdiceroll&quot;>90</span>)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">90</span></td></tr><tr style=\"box-sizing: content-box; background: rgb(190, 190, 190);\"><td class=\"sheet-template_label\" data-i18n=\"result\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">판정결과:</td><td class=\"sheet-template_value\" data-i18n=\"fail\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center; background: crimson;\">실패</td></tr></tbody></table></div><div id=\"menu-OWzWIxNt4jGR7Fbs-aK\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"이것은 체면이 구겨지고, 이성이 흐려지는 와중에도 마지막까지 짜내는 용기.<div id=\"menu-OWzWRuB6MXapS3x6I1d\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">용기가 10 상승합니다.</a><div id=\"menu-OWzWU5SIpgABO6zOHKf\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background-color: transparent; color: rgb(255, 255, 255); font-style: normal; font-size: 16px; display: inline-block; letter-spacing: -1px; border-radius: 18px; padding: 10px 15px; margin-left: -4px; background-image: linear-gradient(315deg, rgb(34, 52, 174) 0%, rgb(25, 23, 20) 74%);\">　　다시 한 번, 용기 판정　　</a><div id=\"menu-OWzWXjvp0WslcdU3KTJ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"(아자아자아자아자)<div id=\"menu-OWzWXl3i1SRxkseTrnp\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"roll","sp":"멜루진","ts":null,"tab":null,"html":"<div class=\"sheet-rolltemplate-coc-1\" style=\"box-sizing: content-box;\"><table style=\"box-sizing: content-box; border-spacing: 0px; border-collapse: collapse; background: rgb(255, 255, 255); width: 1384px; border: 1px solid black; color: black;\"><caption style=\"box-sizing: content-box; padding: 2px; color: white; background: black; font-weight: bold; border: 1px solid black; line-height: 1.6em;\">용기 Roll</caption><tbody style=\"box-sizing: content-box;\"><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">기준치:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 80 = 80\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">80</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(80/2) = floor(80/2)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">40</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(80/5) = floor(80/5)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">16</span></td></tr><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"rolled\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">굴림:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 1d100 = (<span class=&quot;basicdiceroll&quot;>98</span>)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">98</span></td></tr><tr style=\"box-sizing: content-box; background: rgb(190, 190, 190);\"><td class=\"sheet-template_label\" data-i18n=\"result\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">판정결과:</td><td class=\"sheet-template_value\" data-i18n=\"fail\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center; background: crimson;\">실패</td></tr></tbody></table></div><div id=\"menu-OWzWYvPz874HVH84aSW\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"저기, 마법의 주문 같은 거 없을까?<div id=\"menu-OWzWbYZ4V8g674Rt261\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"(조금 고민하다가)<div id=\"menu-OWzWdhRDCsHgB1lQ9Zr\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"1 쫄? 2 그런 거 있을리가 <span class=\"inlinerollresult showtip tipsy-n-right fullfail\" title=\"Rolling 1d2 = (<span class=&quot;basicdiceroll critfail &quot;>1</span>)\" style=\"box-sizing: content-box; background-color: rgb(254, 246, 142); border: 2px solid rgb(179, 21, 21); padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em;\">1</span><div id=\"menu-OWzWj_e6LCqPtkFl0oB\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"이건, 그... 옛날에 친구가 해 줬던 말인데.<div id=\"menu-OWzWnNpVCNPOFa_kb7Y\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"이런 말 들으면 갑자기 다 할 수 있게 된다더라고.<div id=\"menu-OWzWq_waI1kGYmhX_o4\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"...<strong style=\"box-sizing: content-box; font-weight: bold;\"><em style=\"box-sizing: content-box;\">쫄?</em></strong><div id=\"menu-OWzWs8-_q-pNd27d7kG\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"(움찔)<div id=\"menu-OWzWwcg4POVVFDQXQjc\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"이상한 거 가르쳐주는 친군데....<div id=\"menu-OWzX0QLjTw4u3XiGrxi\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background-color: transparent; color: rgb(255, 255, 255); font-style: normal; font-size: 16px; display: inline-block; letter-spacing: -1px; border-radius: 18px; padding: 10px 15px; margin-left: -4px; background-image: linear-gradient(315deg, rgb(34, 52, 174) 0%, rgb(25, 23, 20) 74%);\">　　다시 한 번 더, 용기 판정　　</a><div id=\"menu-OWzX5YuIbhSAGH4X4LW\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"roll","sp":"김백숙","ts":null,"tab":null,"html":"<div class=\"sheet-rolltemplate-coc-1\" style=\"box-sizing: content-box;\"><table style=\"box-sizing: content-box; border-spacing: 0px; border-collapse: collapse; background: rgb(255, 255, 255); width: 1384px; border: 1px solid black; color: black;\"><caption style=\"box-sizing: content-box; padding: 2px; color: white; background: black; font-weight: bold; border: 1px solid black; line-height: 1.6em;\">용기 Roll</caption><tbody style=\"box-sizing: content-box;\"><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">기준치:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 80 = 80\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">80</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(80/2) = floor(80/2)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">40</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(80/5) = floor(80/5)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">16</span></td></tr><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"rolled\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">굴림:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right fullcrit\" title=\"Rolling 1d100 = (<span class=&quot;basicdiceroll critsuccess &quot;>100</span>)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid rgb(63, 179, 21); padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">100</span></td></tr><tr style=\"box-sizing: content-box; background: rgb(190, 190, 190);\"><td class=\"sheet-template_label\" data-i18n=\"result\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">판정결과:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center; background: red;\"><b data-i18n=\"fumble\" style=\"box-sizing: content-box; font-weight: bold;\">대실패</b></td></tr></tbody></table></div><div id=\"menu-OWzXEEEudON94lCPzoq\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"roll","sp":"멜루진","ts":null,"tab":null,"html":"<div class=\"sheet-rolltemplate-coc-1\" style=\"box-sizing: content-box;\"><table style=\"box-sizing: content-box; border-spacing: 0px; border-collapse: collapse; background: rgb(255, 255, 255); width: 1384px; border: 1px solid black; color: black;\"><caption style=\"box-sizing: content-box; padding: 2px; color: white; background: black; font-weight: bold; border: 1px solid black; line-height: 1.6em;\">용기 Roll</caption><tbody style=\"box-sizing: content-box;\"><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">기준치:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 80 = 80\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">80</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(80/2) = floor(80/2)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">40</span>/<span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling floor(80/5) = floor(80/5)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">16</span></td></tr><tr style=\"box-sizing: content-box;\"><td class=\"sheet-template_label\" data-i18n=\"rolled\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">굴림:</td><td class=\"sheet-template_value\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center;\"><span class=\"inlinerollresult showtip tipsy-n-right\" title=\"Rolling 1d100 = (<span class=&quot;basicdiceroll&quot;>51</span>)\" style=\"box-sizing: content-box; background: rgb(190, 190, 190); border: 2px solid black; padding: 0px 3px; font-weight: bold; cursor: help; font-size: 1.1em; display: inline-block; min-width: 1.5em;\">51</span></td></tr><tr style=\"box-sizing: content-box; background: rgb(190, 190, 190);\"><td class=\"sheet-template_label\" data-i18n=\"result\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; font-weight: bold;\">판정결과:</td><td class=\"sheet-template_value\" data-i18n=\"success\" style=\"box-sizing: content-box; padding: 2px; border-bottom: 1px solid black; text-align: center; background: darkgreen;\">보통 성공</td></tr></tbody></table></div><div id=\"menu-OWzXMPjqQoCOa-CT-Oa\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">ㅡ</a><div id=\"menu-OWzXRMLLn4-oFe-cisg\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"너덜너덜해진 안드로이드가 아이를 안고 X제약회사의 지하층에 돌입합니다.<div id=\"menu-OWzXSzaVBtokCSRgDJv\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"보안을 해제한 것은 다름이 아닌 아이입니다.<div id=\"menu-OWzXULxn4QgVUUJtlmY\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"안드로이드의 머리부터 발끝까지 성한 곳은 없습니다.<div id=\"menu-OWzXVgMEUFOYwrg2LSp\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"눈앞에 거대한 실험관들이 보입니다.<div id=\"menu-OWzXX5SMkzNAWVo9wpM\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"진귀한 풍경입니다.<div id=\"menu-OWzXYr2E0K5GxVY-L21\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"더는 이 세상에 존재하지 않는 생물, 크리쳐가 용액 속에 보관되어 있습니다.<div id=\"menu-OWzXZvn46a_cOd6k-Wo\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"...더 안쪽으로 가야 해.<div id=\"menu-OWzXaf0yeb7KBoV3u0x\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"가장 깊은 곳으로.<div id=\"menu-OWzXbtpsorfcjOb0P80\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"응, 응, 더 안쪽으로...! (얼마나 더 움직일 수 있을까? 이제 안전 할 수 있을까?)<div id=\"menu-OWzXls4Au_T2fd-wl_Y\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"그러나, 아이를 안은 안드로이드가 향한 곳은 가장 깊숙한 곳입니다.<div id=\"menu-OWzXqQhWVD-j_FqaFFI\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"아이가 그곳을 가리키고 있기 때문입니다.<div id=\"menu-OWzXrn6n5ls97l3Qhi_\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"어떤 �사람�이 갇힌 실험관까지 도달하자, 당신의 몸이 고장을 알립니다.<div id=\"menu-OWzXtUNK3jH3dhR7SFF\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"눈 앞으로 붉은 신호가 점멸합니다.<div id=\"menu-OWzXuk5YaW31mtOpIn3\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"안드로이드는 그대로 무릎을 꿇고 쓰러집니다.<div id=\"menu-OWzXwaos-7LU0OsbaUQ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"아이는 울고 있습니다.<div id=\"menu-OWzXyD7BLWIj3Z6dS84\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">눈 앞에 버튼이 있습니다.</a><div id=\"menu-OWzXzyCWYXJbPA0HoV4\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">누르겠습니까?</a><div id=\"menu-OWzY04l_7X8b8K83KIY\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"(마지막, 이겠지? 어쩐지 눌러야 한다는 생각이 들었다. 신호가 완전히 끊어지기 전, 손을 들어올려 버튼을 힘껏... 누른다!)<div id=\"menu-OWzYEDZy86hhDdC-zwM\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"마지막으로, 안드로이드는 전선과 회로의 덩어리로만 존재하는 검지로 실험관의 버튼을 누릅니다.<div id=\"menu-OWzYHn0LJio_gohXGyI\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"그러자, 실험관 내부에서 울컥, 하고 기포가 올라오더니 내부로 이어진 전선으로 전기가 흐르기 시작합니다.<div id=\"menu-OWzYKCAL8sdZHNTTfU4\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"이것으로 당신의 임무는 끝났다는 생각이 듭니다.<div id=\"menu-OWzYMU83LltPx85oNV6\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"안드로이드 시스템이 종료됩니다.<div id=\"menu-OWzYNuUPXTABp6WLVIp\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"송출되던 눈앞의 영상이 차츰차츰 흐려집니다.<div id=\"menu-OWzYPWl9lbd7HquPypZ\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"지긋지긋하던 하루의 연속,<div id=\"menu-OWzYQnw3yyKm1awPkKe\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"어쩌면 이것은 간신히 얻어낸 휴가일지도 모릅니다.<div id=\"menu-OWzYS9v2ZiJBIw-2bAu\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"있잖아, 당신... 이런 말, 조금도 위로가 되지 않을지도 모르지만.<div id=\"menu-OWzYXMDYSKokJ9hvtFY\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"(당신의 손을 잡고)<div id=\"menu-OWzYZJiDFLNmmv5UXhK\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"당신은 방금 세계를 구한 거야.<div id=\"menu-OWzYaBHaKa0wTt_36b5\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"내 이름은 오데트,<div id=\"menu-OWzYe0k-iW_QnJuSzZP\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"오데트","ts":null,"tab":null,"html":"<strong style=\"box-sizing: content-box; font-weight: bold;\"><em style=\"box-sizing: content-box;\">당신의 이름은?</em></strong><div id=\"menu-OWzYflSh9IPl-sIQNl5\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"...멜루진!<div id=\"menu-OWzYoKAYBMkWRNkdbmj\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"say","sp":"멜루진","ts":null,"tab":null,"html":"(꼭 기억해달라는 말도 덧붙이고 싶었으나, 더이상 음성을 출력해내지 못했다. 아, 어쩐지 따끔거리더라니!...)<div id=\"menu-OWzYzVxmNeDFSCtGoFR\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"신체를 구성하는 은빛 부품이 제자리에서 빙글빙글 돌아갑니다.<div id=\"menu-OWzZ4Y_5bf-h9Sdl9Ww\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"그 원심력을 따라 돌아가는 것은 프로그래밍된 일과,<div id=\"menu-OWzZ6GRfrQIGVLe78rG\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"약간의 전류,<div id=\"menu-OWzZ7O03KyLHORVnD9y\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"그리고 당신.<div id=\"menu-OWzZ8NVzZWHnixyL2Ka\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"어쩌면 수백억분의 일의 확률로 발생된 오차.<div id=\"menu-OWzZAGMdS0kKw9BkjuY\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"전원을 구동하던 마지막 바퀴가 원을 그리며 느릿하게 굴러갑니다.<div id=\"menu-OWzZBpvOJsfjn8HDfMc\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"이 마음이 연산의 결과라면 세상은 거대한 기계장치일 거야.<div id=\"menu-OWzZEDlECABxZXkcLbp\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">ㅡ</a><div id=\"menu-OWzZFjSI3YIoaDhou5J\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">가끔은 생각해,</a><div id=\"menu-OWzZGLdhVe8oIuePU93\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">이런 나도 누군가를 구하는</a><div id=\"menu-OWzZHY8PKQ3Svvfd9KX\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">영웅이 될 수 있었을까.</a><div id=\"menu-OWzZJFxhwRXYUWzbFx0\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background: rgb(0, 0, 0); color: rgb(0, 248, 246); font-style: normal; display: block; padding: 5px;\">ㅡ</a><div id=\"menu-OWzZK-i12EjATtHlC9I\" class=\"flyout\" style=\"box-sizing: content-box; position: absolute; cursor: pointer; height: 24px; width: 2px; right: 10px; top: 0px;\"></div>"},{"y":"desc","sp":null,"ts":null,"tab":null,"html":"<a style=\"box-sizing: content-box; background-color: transparent; font-style: normal; display: block; margin-top: -4px; padding: 5px;\">RESTART?</a><a href=\"https://ccfolia.com/rooms/_psFnRhnT\" style=\"box-sizing: content-box; background: rgb(192, 192, 192); color: rgb(0, 0, 0); text-decoration: none; font-style: normal; display: block; margin-left: -4px; border-width: 2px; border-style: solid; border-color: rgb(255, 255, 255) rgb(128, 128, 128) rgb(128, 128, 128) rgb(255, 255, 255); text-align: left; font-weight: normal; font-family: gulim; font-size: 12px;\">　▶ Yes</a><a href=\"https://ccfolia.com/rooms/_psFnRhnT\" style=\"box-sizing: content-box; background: rgb(192, 192, 192); color: rgb(0, 0, 0); text-decoration: none; font-style: normal; display: block; margin-left: -4px; border-width: 2px; border-style: solid; border-color: rgb(255, 255, 255) rgb(128, 128, 128) rgb(128, 128, 128) rgb(255, 255, 255); text-align: left; margin-top: 2px; font-weight: normal; font-family: gulim; font-size: 12px;\">　▶ No</a><div><br></div>"}],"charMeta":{"GM":{"display":"GM","color":"#B26A9E","avatar":"./dataurl2_files/max.png","plain":false,"mine":false,"npc":false,"hideAvatar":false},"멜루진":{"display":"멜루진","color":"#5B8DB8","avatar":"./dataurl2_files/max(1).png","plain":false,"mine":false,"npc":false,"hideAvatar":false},"직원":{"display":"직원","color":"#5BA8A0","avatar":"./dataurl2_files/max(2).png","plain":false,"mine":false,"npc":false,"hideAvatar":false},"아이":{"display":"아이","color":"#7BA05B","avatar":"./dataurl2_files/max(3).png","plain":false,"mine":false,"npc":false,"hideAvatar":false},"행인":{"display":"행인","color":"#C98A5B","avatar":"./dataurl2_files/max(2).png","plain":false,"mine":false,"npc":false,"hideAvatar":false},"오데트":{"display":"오데트","color":"#8A7BC9","avatar":"./dataurl2_files/max(3).png","plain":false,"mine":false,"npc":false,"hideAvatar":false},"김백숙":{"display":"김백숙","color":"#c15b74","avatar":"./dataurl2_files/30","plain":false,"mine":false,"npc":false,"hideAvatar":false}},"players":[]};window.CRIT_LOG_SESS = {};</script><div class="wrap">
+  <header class="hero">
+    <h1 id="s-title">로그 <span class="t-writer" id="s-writer"></span><span style="color:var(--dim);font-weight:400;font-size:12px;margin-left:8px" id="s-subtitle"></span></h1>
+    <div class="s-players" id="s-players"></div>
+    <p class="s-overview" id="s-overview"></p>
+    <div class="stats">
+      <span>전체 <b>0</b>블록</span>
+      <span>대사 <b>0</b></span>
+      <span>서술 <b>0</b></span>
+    </div>
+    <div class="bartitle">캐릭터 <button class="allbtn" id="char-all" title="전체 선택/해제">All</button></div>
+    <div class="charbar"></div>
+  </header>
+
+  <div class="toolbar">
+    <div class="tfilter">
+      <button class="on" data-t="general">대사</button>
+      <button class="on" data-t="desc">서술</button>
+    </div>
+    <input type="search" id="q" placeholder="로그 검색…">
+    <button id="sessbtn" title="제목/라이터/플레이어/개요 입력">세션 정보</button><button id="editbtn" title="모든 블록 내용을 바로 수정">편집 모드</button><button id="msgrbtn" title="내 캐릭터의 대사를 오른쪽에 두는 메신저 스타일">메신저</button><button id="savebtn" title="변경 내용을 게시본에 반영 (GitHub 저장소 업데이트)">업데이트</button>
+    <div class="settings">
+      <button id="setbtn">테마</button>
+      <div class="spanel" id="spanel">
+        <h4>표시 옵션</h4>
+        <div class="srow"><label><input type="checkbox" id="opt-tstamp" checked> 날짜/시간 표시</label></div>
+        <hr>
+        <h4>화면 모드</h4>
+        <div class="srow">
+          <label><input type="radio" name="thememode" value="dark" checked> 다크</label>
+          <label><input type="radio" name="thememode" value="light"> 라이트</label>
+        </div>
+        <hr>
+        <h4>포인트 컬러</h4>
+        <div class="srow"><span>세션로그 포인트</span><span class="cwrap"><input type="text" class="hexin" id="h-accent" value="#B26A9E" spellcheck="false"><input type="color" id="c-accent" value="#B26A9E"></span></div>
+        <div class="hint" style="margin:-2px 0 8px">포인트 컬러는 배경·패널·글씨 톤 전체에 은은하게 반영됩니다.</div>
+        <hr>
+        <h4>판정 헤더 (SAN Roll 등)</h4>
+        <div class="srow">
+          <label><input type="radio" name="rtmode" value="grad" checked> 그라데이션</label>
+          <label><input type="radio" name="rtmode" value="solid"> 단색</label>
+        </div>
+        <div class="srow"><span>색 1</span><span class="cwrap"><input type="text" class="hexin" id="h-rt1" value="#6b5a8e" spellcheck="false"><input type="color" id="c-rt1" value="#6b5a8e"></span></div>
+        <div class="srow" id="rt2row"><span>색 2</span><span class="cwrap"><input type="text" class="hexin" id="h-rt2" value="#8e5a7d" spellcheck="false"><input type="color" id="c-rt2" value="#8e5a7d"></span></div>
+      </div>
+    </div>
+    <button id="pwbtn" class="iconbtn" title="게시 비밀번호 등록"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5l3 3"/></svg></button>
+  </div>
+
+  <main id="log"></main>
+<script>
+/* crit-lv-proto-builder: 가져온 로그 데이터를 프로토타입 뷰어 구조로 주입 */
+(function () {
+  var qid = (window.__CRIT_ID || new URLSearchParams(location.search).get('id'));
+  var data = window.CRIT_LOG_DATA || null;
+  if (!data) { try { data = JSON.parse(localStorage.getItem('crit-log-data:' + qid)); } catch (e) {} }
+  window.CRIT_IMPORT_DATA = data;
+  var PALETTE = ['#B26A9E','#5B8DB8','#5BA8A0','#7BA05B','#C98A5B','#8A7BC9','#c15b74','#5bb0c9'];
+  function esc(t) { return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  if (!data || !Array.isArray(data.blocks)) {
+    document.getElementById('log').innerHTML =
+      '<div style="text-align:center;color:var(--dim);padding:60px 0">로그 데이터를 찾을 수 없어요. 로그 보관함에서 다시 가져와 주세요.</div>';
+    window.CRIT_CHARMETA = {};
+    return;
+  }
+  /* 캐릭터 메타: 저장본(charMeta) 우선, 없으면 블록에서 유도 */
+  var meta = {};
+  if (data.charMeta && typeof data.charMeta === 'object') {
+    Object.keys(data.charMeta).forEach(function (k) {
+      var m0 = data.charMeta[k] || {};
+      /* mine/npc를 안 옮겨 담아서, serialize()가 분명히 저장했는데도 다시 열 때마다
+         "내 캐릭터"/NPC 체크가 항상 풀린 것처럼 보였다 */
+      meta[k] = { display: m0.display || k, color: m0.color || null, avatar: m0.avatar || null, plain: !!m0.plain, mine: !!m0.mine, npc: !!m0.npc, hideAvatar: !!m0.hideAvatar };
+    });
+  }
+  var order = [];
+  data.blocks.forEach(function (b) {
+    /* 예전엔 !b.sp면 무조건 건너뛰어서, 이름이 비어있는(익명) 화자는 메시지는 잘 나오면서도
+       캐릭터바에 아예 안 잡혀 편집(사진 제거 등)할 방법이 없었다(실제로 겪은 버그) - 지문인지
+       아닌지는 b.sp가 아니라 b.y === 'desc'로 구분해야 한다 */
+    if (b.y === 'desc') return;
+    var k = b.sp || '';
+    if (!meta[k]) meta[k] = { display: b.sp, color: b.color || null, avatar: b.av || null };
+    if (order.indexOf(k) === -1) order.push(k);
+    if (!meta[k].avatar && b.av) meta[k].avatar = b.av;
+    if (!meta[k].color && b.color) meta[k].color = b.color;
+  });
+  Object.keys(meta).forEach(function (k) { if (order.indexOf(k) === -1) order.push(k); });
+  var pi = 0;
+  order.forEach(function (k) { if (!meta[k].color) meta[k].color = PALETTE[pi++ % PALETTE.length]; });
+  window.CRIT_CHARMETA = meta;
+
+  /* 세션 정보 → 프로토타입 히어로 - 게시본은 window.CRIT_LOG_SESS로 구워져 들어온다
+     (publisher.html이 게시 시점에 crit-log-sess:<id>를 읽어서 넣어줌). 방문자 브라우저는
+     앱의 localStorage에 접근할 수 없어서(다른 오리진) 그 값이 없으면 세션 정보가 영원히
+     빈 채로 보였다(실제로 겪은 버그) - 있으면 그걸 쓰고, 없으면(앱 안에서 직접 보는
+     경우) 기존대로 localStorage에서 읽는다 */
+  var sess = {};
+  if (window.CRIT_LOG_SESS) sess = window.CRIT_LOG_SESS;
+  else { try { sess = JSON.parse(localStorage.getItem('crit-log-sess:' + (qid || 'tpl'))) || {}; } catch (e) {} }
+  var sTitle = sess.title || data.title || '로그';
+  var sPlayers = sess.players || data.players || [];
+  document.body.dataset.session = JSON.stringify({
+    title: sTitle,
+    writer: sess.writer || '',
+    gm: sess.gm || '',
+    players: sPlayers,
+    party: sess.party || data.party || '',
+    overview: sess.overview || ''
+  });
+  /* 히어로 데모 텍스트를 즉시 교체 (메인 스크립트의 세션 렌더는 저장 시점에만 돌므로) */
+  var tEl = document.getElementById('s-title');
+  if (tEl && tEl.childNodes.length) tEl.childNodes[0].textContent = sTitle + ' ';
+  var wEl = document.getElementById('s-writer');
+  if (wEl) wEl.textContent = sess.writer || '';
+  var plEl = document.getElementById('s-players');
+  if (plEl) plEl.innerHTML = sPlayers.map(function (p) { return '<span class="pbadge">' + esc(p) + '</span>'; }).join('');
+  var ovEl = document.getElementById('s-overview');
+  if (ovEl) ovEl.textContent = sess.overview || '';
+  document.title = 'Crit — ' + sTitle;
+
+  /* 캐시된(하드코딩) 페이지면 DOM 재조립 생략 - 통계/메타만 갱신 */
+  var BAKED = !!(window.CRIT_BAKED && document.querySelector("#log .msg"));
+  /* 로그 DOM 생성 (프로토타입과 동일 마크업, 같은 화자 연속 발화는 cont로 묶음) */
+  var counts = { total: 0, say: 0, desc: 0 };
+  var htmlOut = [];
+  var prevKey = null;
+  data.blocks.forEach(function (b, i) {
+    counts.total++;
+    var forced = b.sp && data.chars && data.chars[b.sp] && data.chars[b.sp].desc;
+    if (b.y === 'desc' || forced) {
+      counts.desc++;
+      prevKey = null;
+      if(!BAKED)htmlOut.push('<div class="msg desc" data-char="' + esc(b.sp || '') + '" data-type="desc" id="imp-' + i + '">' +
+        '<div class="mbody"><div class="mcontent">' + (b.html || '') + '</div></div></div>');
+      return;
+    }
+    counts.say++;
+    /* meta는 order 구성 때 b.sp||''로 정규화한 키로 저장돼있다 - 여기서 b.sp를 그대로
+       쓰면(undefined일 때) meta['']에 저장된 실제 캐릭터 설정(색·아바타·숨기기 등)을
+       못 찾고 항상 기본값으로만 그려진다 */
+    var m = meta[b.sp || ''] || { color: '#9a95a0', avatar: null };
+    /* "이 블록만" 아바타 수정은 예전엔 화면(DOM)에만 반영되고 serialize()가 저장을
+       안 해서, 새로고침하면 조용히 사라졌다(실제로 겪은 버그) - b.avOv로 블록별로
+       저장한다: 문자열이면 그 이미지로 덮어쓰고, 프로퍼티는 있는데 값이 없으면(null)
+       "이 블록만 없애기"로 색 원만 강제, 프로퍼티 자체가 없으면 평소처럼 캐릭터 기본값 */
+    var hasOv = Object.prototype.hasOwnProperty.call(b, 'avOv');
+    var noAv, av;
+    if (hasOv) {
+      noAv = false;
+      av = b.avOv
+        ? '<img src="' + esc(b.avOv) + '" loading="lazy" onerror="this.replaceWith(avFallback(\'' + esc(m.color) + '\'))">'
+        : '<b style="background:' + esc(m.color) + '"></b>';
+    } else {
+      /* 이름도 없고 아바타 이미지도 안 정한 캐릭터는(체크박스를 굳이 안 켰어도) 색깔 원만
+         덩그러니 뜨는 게 오히려 더 어색해서 기본적으로 접는다 - "완전히 숨기기"는 이름은
+         있지만 사진만 없애고 싶을 때(NPC 등) 쓰라고 남겨둔다 */
+      noAv = m.hideAvatar || (!b.sp && !m.avatar);
+      av = noAv ? '' : (m.avatar
+        ? '<img src="' + esc(m.avatar) + '" loading="lazy" onerror="this.replaceWith(avFallback(\'' + esc(m.color) + '\'))">'
+        : '<b style="background:' + esc(m.color) + '"></b>');
+    }
+    var isRoll = b.y === 'roll';
+    /* b.sp && 로 막아두면 이름 없는 캐릭터(빈 문자열)는 항상 falsy라 연속 발언으로
+       절대 안 묶였다(실제로 겪은 버그) - 같은 값이면(둘 다 빈 문자열이어도) 묶여야 한다 */
+    var cont = !isRoll && prevKey === b.sp;
+    prevKey = isRoll ? null : b.sp;
+    var extra = (isRoll ? ' rt-coc-1' : '') + (cont ? ' cont' : '') +
+      (noAv ? ' noav' : '') + (!b.sp ? ' noname' : '');
+    var tabAttr = b.tab ? ' data-tab="' + esc(b.tab) + '"' : '';
+    /* avOv가 있는 블록은 렌더 시점엔 이미지를 맞게 보여주면서도 data-avatar-override를
+       안 붙여서, 새로고침 직후 아무 DOM 변화(MutationObserver)에도 serialize()가 이
+       블록을 "오버라이드 없음"으로 다시 저장해버려 조용히 유실됐다(실제 겪은 버그:
+       "저장은 됐는데 다시 들어가면 리스트 자체가 초기화된다") */
+    var ovAttr = hasOv ? ' data-avatar-override="1"' : '';
+    if(!BAKED)htmlOut.push('<div class="msg general' + extra + '" data-char="' + esc(b.sp || '') + '" data-type="general"' + tabAttr + ovAttr + ' id="imp-' + i + '">' +
+      '<div class="avatar">' + av + '</div>' +
+      '<div class="mbody"><div class="mhead"><span class="by" style="color:' + esc(m.color) + '">' + esc(b.sp || '') + '</span>' +
+      (b.ts ? '<span class="tstamp">' + esc(b.ts) + '</span>' : '') + '</div>' +
+      '<div class="mcontent">' + (b.html || '') + '</div></div></div>');
+  });
+  /* 블록 단위 점진 렌더링: 첫 400블록만 즉시 그려 바로 조작 가능, 나머지는 비동기로 이어붙임 */
+  (function () {
+    var lgEl = document.getElementById('log');
+    var CHUNK = 400;
+    if (htmlOut.length <= CHUNK) { lgEl.innerHTML = htmlOut.join('\n'); return; }
+    window.CRIT_BUILDING = true;
+    lgEl.innerHTML = htmlOut.slice(0, CHUNK).join('\n');
+    var __pos = CHUNK;
+    (function step() {
+      if (__pos >= htmlOut.length) {
+        window.CRIT_BUILDING = false;
+        document.dispatchEvent(new Event('crit-log-built'));
+        return;
+      }
+      var tp = document.createElement('template');
+      tp.innerHTML = htmlOut.slice(__pos, __pos + CHUNK).join('\n');
+      lgEl.appendChild(tp.content);
+      __pos += CHUNK;
+      setTimeout(step, 0);
+    })();
+  })();
+
+  /* 통계 */
+  var st = document.querySelector('.stats');
+  if (st) st.innerHTML = '<span>전체 <b>' + counts.total + '</b>블록</span>' +
+    '<span>대사 <b>' + counts.say + '</b></span><span>서술 <b>' + counts.desc + '</b></span>';
+
+  /* 저장된 캐릭터 꺼짐 상태를 렌더 시점부터 반영 (깜빡임 방지) */
+  var savedCharOffLv = [];
+  try { var _csoLv = JSON.parse(localStorage.getItem('crit-char-state:' + qid)); if (_csoLv && Array.isArray(_csoLv.off)) savedCharOffLv = _csoLv.off; } catch (eCsoLv) {}
+
+  /* 캐릭터바 칩 (프로토타입과 동일 마크업) */
+  var PEN = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+  var cb = document.querySelector('.charbar');
+  if (cb) {
+    var cnt = {};
+    data.blocks.forEach(function (b) { if (b.y === 'desc') return; var k0 = b.sp || ''; cnt[k0] = (cnt[k0] || 0) + 1; });
+    cb.innerHTML = order.map(function (k) {
+      var m2 = meta[k];
+      var mcolor = m2.color || '#9a95a0';
+      var noAv2 = m2.hideAvatar || (!k && !m2.avatar);
+      var avh = noAv2 ? '' : (m2.avatar
+        ? '<img src="' + esc(m2.avatar) + '" onerror="this.replaceWith(avFallback(&quot;' + esc(mcolor) + '&quot;))">'
+        : '<b style="background:' + esc(mcolor) + '"></b>');
+      var charOnLv = savedCharOffLv.indexOf(k) === -1;
+      return '<label class="char-chip" data-chip="' + esc(k) + '" style="--cc:' + esc(mcolor) + '">' +
+        '<input type="checkbox"' + (charOnLv ? ' checked' : '') + ' data-char="' + esc(k) + '">' +
+        '<span class="chip-avatar">' + avh + '</span>' +
+        '<span class="chip-name" style="color:' + esc(mcolor) + '">' + esc(m2.display || k || '(이름 없음)') + '</span>' +
+        '<span class="chip-count">' + (cnt[k] || 0) + '</span>' +
+        '<span class="chip-edit" title="캐릭터 편집" data-edit="' + esc(k) + '">' + PEN + '</span></label>';
+    }).join('\n');
+  }
+})();
+</script>
+</div>
+<input type="file" id="filepick" accept="image/*" style="display:none">
+<script>
+const charMeta = window.CRIT_CHARMETA || {};
+const READER = false;
+
+/* 아바타 폴백: 이니셜 없는 단색 인장 */
+function avFallback(color) {
+  const b = document.createElement('b');
+  b.style.background = color; return b;
+}
+
+/* ── 세션 정보 ── */
+let sessionInfo = JSON.parse(document.body.dataset.session || '{}');
+function renderSession() {
+  const t = document.getElementById('s-title');
+  if (t) t.childNodes[0].textContent = (sessionInfo.title || '세션 로그') + ' ';
+  const w = document.getElementById('s-writer');
+  if (w) w.textContent = sessionInfo.writer ? ('w. ' + sessionInfo.writer) : '';
+  const pl = document.getElementById('s-players');
+  if (pl) {
+    const badges = [];
+    if (sessionInfo.gm) {
+      const g = document.createElement('span'); g.className = 'pbadge pbadge-gm'; g.textContent = 'GM ' + sessionInfo.gm;
+      badges.push(g.outerHTML);
+    }
+    if ((sessionInfo.players || []).length) {
+      const s = document.createElement('span'); s.className = 'pbadge'; s.textContent = 'PL ' + sessionInfo.players.join(',');
+      badges.push(s.outerHTML);
+    }
+    pl.innerHTML = badges.join('');
+  }
+  const ov = document.getElementById('s-overview');
+  if (ov) ov.textContent = sessionInfo.overview || '';
+  document.title = (sessionInfo.title || '세션 로그');
+}
+const sessbtn = document.getElementById('sessbtn');
+if (sessbtn) sessbtn.addEventListener('click', () => {
+  const ov = document.createElement('div'); ov.className = 'overlay';
+  ov.innerHTML = `<div class="modal wide"><h3>세션 정보</h3>
+    <div class="mrow"><span style="flex:none;width:88px">제목 <b style="color:var(--accent)">*</b></span><input type="text" id="si-title" value="${(sessionInfo.title||'').replace(/"/g,'&quot;')}"></div>
+    <div class="mrow"><span style="flex:none;width:88px">시나리오 라이터</span><input type="text" id="si-writer" value="${(sessionInfo.writer||'').replace(/"/g,'&quot;')}"></div>
+    <div class="mrow"><span style="flex:none;width:88px">GM</span><input type="text" id="si-gm" placeholder="진행자 이름" value="${(sessionInfo.gm||'').replace(/"/g,'&quot;')}"></div>
+    <div class="mrow"><span style="flex:none;width:88px">PL</span><input type="text" id="si-players" placeholder="쉼표로 구분" value="${((sessionInfo.players||[]).join(', ')).replace(/"/g,'&quot;')}"></div>
+    <div class="mrow"><span style="flex:none;width:88px">파티명</span><input type="text" id="si-party" placeholder="여럿일 때 표기 (선택)" value="${(sessionInfo.party||'').replace(/"/g,'&quot;')}"></div>
+    <div style="font-size:13px;margin:2px 0 6px">시나리오 개요</div>
+    <textarea id="si-overview" style="min-height:110px" spellcheck="false">${sessionInfo.overview||''}</textarea>
+    <div class="hint">입력한 정보는 게시본 상단에 표시됩니다. 비워두면 해당 항목은 표시되지 않아요.</div>
+    <div class="mbtns"><button id="sc">취소</button><button class="primary" id="so">적용</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  ov.querySelector('#sc').addEventListener('click', () => ov.remove());
+  ov.querySelector('#so').addEventListener('click', () => {
+    sessionInfo = {
+      title: ov.querySelector('#si-title').value.trim(),
+      writer: ov.querySelector('#si-writer').value.trim(),
+      gm: ov.querySelector('#si-gm').value.trim(),
+      players: ov.querySelector('#si-players').value.split(',').map(s => s.trim()).filter(Boolean),
+      party: ov.querySelector('#si-party').value.trim(),
+      overview: ov.querySelector('#si-overview').value.trim(),
+    };
+    document.body.dataset.session = JSON.stringify(sessionInfo);
+    renderSession();
+    /* 자관 미연동 로그의 사이드바 뱃지(플레이어/파티명)가 이걸 읽는데, 가져온 로그는 이 저장
+       자체가 아예 빠져있어서 세션 정보를 아무리 채워도 사이드바엔 절대 안 떴다 */
+    try {
+      var qidSess = window.__CRIT_ID || new URLSearchParams(location.search).get('id');
+      if (qidSess) localStorage.setItem('crit-sess:log_viewer.html?id=' + qidSess, JSON.stringify({ players: sessionInfo.players, party: sessionInfo.party }));
+    } catch (eSess) {}
+    /* crit-log-sess:<id>(다시 열 때 읽는 진짜 저장소)는 이제껏 #s-players DOM이 실제로
+       바뀔 때만 걸리는 MutationObserver에만 의존했다 - 개요/제목/라이터만 고치고 플레이어
+       목록은 그대로 두면(특히 비어 있으면) 감시망이 아예 안 걸려서 저장 자체가 안 됐다
+       (실제로 겪은 버그 - "개요 고치고 게시했는데 반영이 안 됨"). 저장 버튼을 누른 시점에
+       직접, 확실하게 저장한다 */
+    try {
+      var qidSess2 = window.__CRIT_ID || new URLSearchParams(location.search).get('id');
+      localStorage.setItem('crit-log-sess:' + (qidSess2 || 'tpl'), JSON.stringify(sessionInfo));
+    } catch (eSess2) {}
+    if (typeof serialize === 'function') serialize();
+    ov.remove();
+  });
+});
+
+/* ── 필터/검색 ── */
+const typeBtns = document.querySelectorAll('.tfilter button');
+const charBoxes = document.querySelectorAll('.char-chip input');
+const q = document.getElementById('q');
+function apply() {
+  const types = new Set([...typeBtns].filter(b=>b.classList.contains('on')).map(b=>b.dataset.t));
+  const chars = charBoxes.length ? new Set([...charBoxes].filter(c=>c.checked).map(c=>c.dataset.char)) : null;
+  const term = q.value.trim().toLowerCase();
+  document.querySelectorAll('#log .msg').forEach(m => {
+    let ok = types.has(m.dataset.type);
+    if (ok && chars && m.dataset.type === 'general' && m.dataset.char) ok = chars.has(m.dataset.char);
+    if (ok && term) ok = m.textContent.toLowerCase().includes(term);
+    m.classList.toggle('hide', !ok);
+  });
+}
+typeBtns.forEach(b => b.addEventListener('click', () => { b.classList.toggle('on'); apply(); }));
+charBoxes.forEach(c => c.addEventListener('change', apply));
+q.addEventListener('input', apply);
+
+/* all 뱃지: 캐릭터 전체 선택/해제 토글 */
+const charAllBtn = document.getElementById('char-all');
+if (charAllBtn) charAllBtn.addEventListener('click', () => {
+  const boxes = [...charBoxes];
+  const allOn = boxes.every(c => c.checked);
+  boxes.forEach(c => { c.checked = !allOn; });
+  apply();
+});
+/* 캐릭터 칩 우클릭: 해당 캐릭터 로그만 보기(솔로) */
+document.querySelectorAll('.char-chip[data-chip]').forEach(chip => {
+  chip.addEventListener('contextmenu', e => {
+    e.preventDefault(); e.stopPropagation();
+    charBoxes.forEach(c => { c.checked = (c.dataset.char === chip.dataset.chip); });
+    apply();
+  });
+});
+
+/* ── 편집 모드 ── */
+const editbtn = document.getElementById('editbtn');
+if (editbtn) editbtn.addEventListener('click', () => {
+  const on = editbtn.classList.toggle('on');
+  document.body.classList.toggle('editing', on);
+  document.querySelectorAll('.mcontent').forEach(el => el.contentEditable = on);
+});
+
+/* ── 테마 설정 ── */
+const setbtn = document.getElementById('setbtn'), spanel = document.getElementById('spanel');
+setbtn.addEventListener('click', e => { e.stopPropagation(); spanel.classList.toggle('open'); });
+spanel.addEventListener('click', e => e.stopPropagation());
+document.addEventListener('click', () => spanel.classList.remove('open'));
+const root = document.documentElement.style;
+function applyTheme() {
+  const mode = document.querySelector('input[name=rtmode]:checked').value;
+  const c1 = document.getElementById('c-rt1').value;
+  const c2 = mode === 'solid' ? c1 : document.getElementById('c-rt2').value;
+  root.setProperty('--accent', document.getElementById('c-accent').value);
+  root.setProperty('--rt1', c1);
+  root.setProperty('--rt2', c2);
+  document.getElementById('rt2row').style.display = mode === 'solid' ? 'none' : 'flex';
+}
+/* 컬러피커 ↔ HEX 직접 입력 양방향 동기화 */
+[['h-accent','c-accent'],['h-rt1','c-rt1'],['h-rt2','c-rt2']].forEach(([h, c]) => {
+  const hex = document.getElementById(h), col = document.getElementById(c);
+  hex.addEventListener('input', () => {
+    let v = hex.value.trim();
+    if (/^[0-9a-fA-F]{6}$/.test(v)) v = '#' + v;
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) { col.value = v.toLowerCase(); applyTheme(); }
+  });
+  hex.addEventListener('blur', () => { hex.value = col.value; });
+  col.addEventListener('input', () => { hex.value = col.value; });
+});
+['c-accent','c-rt1','c-rt2'].forEach(id => document.getElementById(id).addEventListener('input', applyTheme));
+document.querySelectorAll('input[name=rtmode]').forEach(r => r.addEventListener('change', applyTheme));
+document.querySelectorAll('input[name=thememode]').forEach(r => r.addEventListener('change', () => {
+  document.body.classList.toggle('light', document.querySelector('input[name=thememode]:checked').value === 'light');
+}));
+document.getElementById('opt-tstamp').addEventListener('change', e => {
+  document.body.classList.toggle('no-tstamp', !e.target.checked);
+});
+
+/* ── 파일 선택 헬퍼 ── */
+const filepick = document.getElementById('filepick');
+let fileCb = null;
+filepick.addEventListener('change', () => {
+  const f = filepick.files[0]; filepick.value = '';
+  if (!f || !fileCb) return;
+  const r = new FileReader();
+  r.onload = () => fileCb(r.result);
+  r.readAsDataURL(f);
+});
+function pickImage(cb) { fileCb = cb; filepick.click(); }
+/* 업로드한 이미지를 base64로 localStorage에 그대로 박아두면 용량 제한에 걸리므로,
+   디스크에 파일로 저장하고 crit-image://<id> 참조만 돌려받는다 (Electron API 없는
+   브라우저 미리보기에서는 그냥 base64를 그대로 씀) */
+async function toImageRef(dataUrl) {
+  if (window.api && window.api.images && window.api.images.save) {
+    try {
+      const res = await window.api.images.save(dataUrl);
+      if (res && res.url) return res.url;
+    } catch (e) {}
+  }
+  return dataUrl;
+}
+
+function setAvatar(container, src) {
+  const av = container.querySelector('.avatar, .chip-avatar');
+  if (!av) return;
+  av.innerHTML = '';
+  const img = document.createElement('img'); img.src = src; av.appendChild(img);
+}
+
+/* ── 경고(확인) 모달: 삭제류 동작 공통 ── */
+function confirmModal(msg, okLabel, onOk) {
+  const ov = document.createElement('div'); ov.className = 'overlay';
+  ov.innerHTML = `<div class="modal"><h3>경고</h3>
+    <div style="font-size:13px; line-height:1.6">${msg}</div>
+    <div class="mbtns"><button id="wc">취소</button><button class="danger" id="wo">${okLabel}</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  ov.querySelector('#wc').addEventListener('click', () => ov.remove());
+  ov.querySelector('#wo').addEventListener('click', () => { ov.remove(); onOk(); });
+}
+
+/* 이 캐릭터의 "이 블록만" 아바타 수정에 예전에 썼던 이미지들(중복 제거) - 매번 새로
+   업로드하지 않고 골라 쓸 수 있게(실제 요청: "이미 등록한 이미지로 또 하고 싶을 수도
+   있잖아") data.blocks에 저장된 avOv를 훑는다 (avOv:null인 "이 블록만 없애기"는 제외) */
+function collectRecentAvatars(key) {
+  var seen = {}; var out = [];
+  (window.CRIT_IMPORT_DATA && window.CRIT_IMPORT_DATA.blocks || []).forEach(function (b) {
+    if (b.sp === key && b.avOv && !seen[b.avOv]) { seen[b.avOv] = true; out.push(b.avOv); }
+  });
+  return out;
+}
+/* "이 블록만" 오버라이드를 지우고 캐릭터 기본값(공용 아바타/색/숨김)으로 되돌린다 */
+function revertBlockAvatar(m) {
+  delete m.dataset.avatarOverride;
+  var meta = charMeta[m.dataset.char] || {};
+  if (meta.hideAvatar) blankAvatar(m);
+  else if (meta.avatar) setAvatar(m, meta.avatar);
+  else sealAvatar(m, meta.color || '#999');
+}
+/* esc()는 다른 <script> 블록(IIFE) 안에 갇혀 있어 여기서는 안 보인다 - 이걸 놓쳐서
+   재사용 썸네일이 하나라도 있는 상태로 이 모달을 열 때마다 "esc is not defined"가
+   터져 모달 자체가 안 열렸다(실제 겪은 버그: "수정을 하고나면 다른 블록들을 수정할
+   수가 없어" - 사실은 그 캐릭터의 모든 블록에서 똑같이 막히고 있었다) */
+function escAttr(t) { return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+/* ── 드래그앤드롭 업로드 모달 (onDelete 전달 시 삭제 버튼 표시, recentImgs 전달 시 재사용
+   썸네일 표시, onRevert 전달 시 썸네일 맨 앞에 "원래대로" 버튼 표시) ── */
+function openUploadModal(title, cb, onDelete, recentImgs, onRevert) {
+  /* crit-crop-wrap: 아바타는 1:1로 잘라서 등록. 자른 결과(base64)를 디스크로 옮긴 뒤
+     참조를 실제 콜백에 넘긴다 */
+  var _cb = cb;
+  var _cbRef = function (d) { toImageRef(d).then(_cb); };
+  cb = function (d) { if (window.critCrop) critCrop(d, 1, _cbRef); else _cbRef(d); };
+  const ov = document.createElement('div'); ov.className = 'overlay';
+  /* 재사용 썸네일은 이미 한 번 크롭·저장까지 끝난 이미지라 다시 크롭 모달을 띄우지
+     않고 바로 적용한다 */
+  var hasRecent = recentImgs && recentImgs.length;
+  var recentHtml = '';
+  if (hasRecent || onRevert) {
+    recentHtml = '<div class="hint" style="margin:0 0 6px">이 캐릭터에 예전에 쓴 이미지</div>' +
+      '<div id="ua-recent" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">' +
+      (onRevert ? '<div class="ua-revert" title="이 블록만 지정한 아바타 없애고 원래대로" style="width:42px;height:42px;' +
+        'border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;' +
+        'border:2px dashed var(--line);color:var(--dim);font-size:10px;line-height:1.2;text-align:center">원래대로</div>' : '') +
+      (hasRecent ? recentImgs.map(function (src, i) {
+        return '<div class="ua-recent-item" data-i="' + i + '" title="이 이미지 쓰기" style="width:42px;height:42px;' +
+          'border-radius:50%;background-size:cover;background-position:center;cursor:pointer;' +
+          'border:2px solid var(--line);background-image:url(' + escAttr(src) + ')"></div>';
+      }).join('') : '') + '</div>';
+  }
+  ov.innerHTML = `<div class="modal"><h3>${title}</h3>
+    ${recentHtml}
+    <div class="dropzone" id="dz">이미지를 여기로 드래그하거나<br>클릭해서 선택하세요</div>
+    <div class="mbtns">${onDelete ? '<button class="danger" id="ud">아바타 삭제</button>' : ''}<button id="uc">취소</button></div></div>`;
+  document.body.appendChild(ov);
+  const dz = ov.querySelector('#dz');
+  const done = d => { ov.remove(); cb(d); };
+  if (onRevert) {
+    ov.querySelector('.ua-revert').addEventListener('click', function (e) {
+      e.stopPropagation();
+      ov.remove();
+      onRevert();
+    });
+  }
+  if (hasRecent) {
+    ov.querySelectorAll('.ua-recent-item').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.stopPropagation();
+        ov.remove();
+        _cbRef(recentImgs[parseInt(el.dataset.i, 10)]);
+      });
+    });
+  }
+  dz.addEventListener('click', () => pickImage(done));
+  ['dragover','dragenter'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('over'); }));
+  ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('over'); }));
+  dz.addEventListener('drop', e => {
+    const f = e.dataTransfer.files[0]; if (!f || !f.type.startsWith('image/')) return;
+    const r = new FileReader(); r.onload = () => done(r.result); r.readAsDataURL(f);
+  });
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  ov.querySelector('#uc').addEventListener('click', () => ov.remove());
+  if (onDelete) ov.querySelector('#ud').addEventListener('click', () => {
+    ov.remove();
+    confirmModal('아바타를 삭제하고 단색 인장으로 되돌릴까요?', '삭제', onDelete);
+  });
+}
+
+/* 인장(단색) 아바타로 되돌리기 */
+function sealAvatar(container, color) {
+  const av = container.querySelector('.avatar, .chip-avatar');
+  if (!av) return;
+  av.innerHTML = '';
+  const b = document.createElement('b'); b.style.background = color; av.appendChild(b);
+}
+
+/* 완전히 숨기기: 이미지도 단색 인장도 없이 그냥 빈 자리로 (NPC 등 색조차 필요 없을 때) */
+function blankAvatar(container) {
+  const av = container.querySelector('.avatar, .chip-avatar');
+  if (av) av.innerHTML = '';
+}
+
+function removeAvatarAll(key) {
+  const meta = charMeta[key]; if (meta) meta.avatar = null;
+  const color = meta ? meta.color : '#999';
+  const chip = document.querySelector(`.char-chip[data-chip="${CSS.escape(key)}"]`);
+  if (chip) sealAvatar(chip, color);
+  document.querySelectorAll(`.msg[data-char="${CSS.escape(key)}"]`).forEach(mm => {
+    if (!mm.dataset.avatarOverride) sealAvatar(mm, color);
+  });
+}
+
+/* 전체 아바타 일괄 적용 (해당 이름을 가진 롤플의 모든 블록 + 칩) */
+function applyAvatarAll(key, d) {
+  const meta = charMeta[key]; if (meta) meta.avatar = d;
+  const chip = document.querySelector(`.char-chip[data-chip="${CSS.escape(key)}"]`);
+  if (chip) setAvatar(chip, d);
+  document.querySelectorAll(`.msg[data-char="${CSS.escape(key)}"]`).forEach(mm => {
+    if (!mm.dataset.avatarOverride) setAvatar(mm, d);
+  });
+}
+
+/* ── 태그 수정 (고급) ── */
+function openTagModal(m) {
+  const c = m.querySelector('.mcontent');
+  const ov = document.createElement('div'); ov.className = 'overlay';
+  ov.innerHTML = `<div class="modal wide"><h3>태그 수정 (고급)</h3>
+    <textarea id="tg" spellcheck="false"></textarea>
+    <div class="hint">이 블록의 HTML 태그를 직접 수정합니다. 닫히지 않은 태그 등 잘못된 HTML은 표시가 깨질 수 있어요.</div>
+    <div class="mbtns"><button id="tc">취소</button><button class="primary" id="to">적용</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#tg').value = c.innerHTML.trim();
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  ov.querySelector('#tc').addEventListener('click', () => ov.remove());
+  ov.querySelector('#to').addEventListener('click', () => {
+    c.innerHTML = ov.querySelector('#tg').value;
+    ov.remove();
+  });
+}
+
+/* ── 캐릭터 편집 모달 ── */
+let charMetaOriginal = null;
+function openCharModal(key) {
+  /* 가져온 로그는 charMeta가 데이터 파싱 후에야 채워지니, 처음 이 모달을 여는 시점(이미 다 채워진 뒤)에
+     한 번만 스냅샷 떠서 "기본 색으로 복원" 기준으로 삼는다 */
+  if (!charMetaOriginal) charMetaOriginal = JSON.parse(JSON.stringify(charMeta));
+  const meta = charMeta[key];
+  const ov = document.createElement('div'); ov.className = 'overlay';
+  ov.innerHTML = `
+    <div class="modal">
+      <h3>캐릭터 편집</h3>
+      <div class="mrow"><span>이름</span><input type="text" id="cm-name" value="${meta.display}"></div>
+      <div class="mrow"><span>이름 글씨색</span><input type="text" id="cm-colorhex" class="hexin" value="${meta.color}" spellcheck="false" style="width:80px"><input type="color" id="cm-color" value="${meta.color}">${charMetaOriginal[key] ? '<button type="button" id="cm-colorreset" title="기본 색으로 복원" style="background:none;border:none;color:var(--dim);cursor:pointer;padding:4px">↺</button>' : ''}</div>
+      <div class="mrow"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="cm-mine" ${meta.mine ? 'checked' : ''}> 내 캐릭터 <span style="font-size:11px;color:var(--dim)">메신저 스타일에서 오른쪽 정렬</span></label></div>
+      <div class="mrow"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="cm-npc" ${meta.npc ? 'checked' : ''}> NPC <span style="font-size:11px;color:var(--dim)">메신저 스타일에서 지문처럼 가운데 정렬</span></label></div>
+      <div class="mrow"><span>프로필 사진</span><button id="cm-img">이미지 선택…</button>${meta.avatar ? '<button id="cm-imgdel" class="danger">제거</button>' : ''}</div>
+      <div class="mrow"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="cm-noavatar" ${meta.hideAvatar ? 'checked' : ''}> 프로필 완전히 숨기기 <span style="font-size:11px;color:var(--dim)">이미지도 색상 원도 안 보여요 (NPC 등에)</span></label></div>
+      <div class="mbtns"><button id="cm-cancel">취소</button><button class="primary" id="cm-ok">적용</button></div>
+    </div>`;
+  document.body.appendChild(ov);
+  const cmColor = ov.querySelector('#cm-color'), cmColorHex = ov.querySelector('#cm-colorhex');
+  cmColorHex.addEventListener('input', () => {
+    let v = cmColorHex.value.trim();
+    if (/^[0-9a-fA-F]{6}$/.test(v)) v = '#' + v;
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) cmColor.value = v.toLowerCase();
+  });
+  cmColorHex.addEventListener('blur', () => { cmColorHex.value = cmColor.value; });
+  cmColor.addEventListener('input', () => { cmColorHex.value = cmColor.value; });
+  const cmColorReset = ov.querySelector('#cm-colorreset');
+  if (cmColorReset) cmColorReset.addEventListener('click', () => {
+    const def = charMetaOriginal[key].color;
+    cmColor.value = def; cmColorHex.value = def;
+  });
+  let newAvatar = null, avatarRemoved = false;
+  ov.querySelector('#cm-img').addEventListener('click', () => pickImage(async d => {
+    newAvatar = await toImageRef(d); avatarRemoved = false; ov.querySelector('#cm-img').textContent = '선택됨 ✓';
+  }));
+  const cmImgDel = ov.querySelector('#cm-imgdel');
+  if (cmImgDel) cmImgDel.addEventListener('click', () => {
+    avatarRemoved = true; newAvatar = null;
+    ov.querySelector('#cm-img').textContent = '이미지 선택…';
+    cmImgDel.remove();
+  });
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  ov.querySelector('#cm-cancel').addEventListener('click', () => ov.remove());
+  ov.querySelector('#cm-ok').addEventListener('click', () => {
+    const newName = ov.querySelector('#cm-name').value || meta.display;
+    const targetKey = Object.keys(charMeta).find(k => k !== key && charMeta[k].display === newName);
+    if (targetKey && newName !== meta.display) {
+      ov.remove();
+      confirmModal(`이미 「${newName}」 캐릭터가 있습니다. 두 캐릭터의 로그를 하나로 합칠까요?<br>취소하면 이름은 변경되지 않습니다.`, '합치기',
+        () => mergeChars(key, targetKey));
+      return;
+    }
+    meta.display = newName;
+    meta.color = ov.querySelector('#cm-color').value;
+    meta.mine = ov.querySelector('#cm-mine').checked;
+    meta.npc = ov.querySelector('#cm-npc').checked;
+    meta.hideAvatar = ov.querySelector('#cm-noavatar').checked;
+    refreshMine();
+    if (avatarRemoved) delete meta.avatar;
+    else if (newAvatar) meta.avatar = newAvatar;
+    /* hideAvatar 체크를 껐다 켰다 할 때도 항상 지금 상태(meta.avatar/meta.hideAvatar) 기준으로
+       다시 결정한다 - newAvatar/avatarRemoved 변화가 없었던(단순히 숨기기만 껐다 켠) 경우에도
+       올바르게 복원/재적용되도록 */
+    function paintAvatar(container) {
+      if (meta.hideAvatar) blankAvatar(container);
+      else if (meta.avatar) setAvatar(container, meta.avatar);
+      else sealAvatar(container, meta.color);
+    }
+    // 칩 갱신
+    const chip = document.querySelector(`.char-chip[data-chip="${CSS.escape(key)}"]`);
+    if (chip) {
+      chip.querySelector('.chip-name').textContent = meta.display;
+      chip.querySelector('.chip-name').style.color = meta.color;
+      chip.style.setProperty('--cc', meta.color);
+      paintAvatar(chip);
+    }
+    // 전체 블록 갱신 (블록별 오버라이드는 유지)
+    document.querySelectorAll(`.msg[data-char="${CSS.escape(key)}"]`).forEach(m => {
+      const by = m.querySelector('.mhead .by');
+      if (by) { by.textContent = meta.display; by.style.color = meta.color; }
+      if (!m.dataset.avatarOverride) paintAvatar(m);
+    });
+    /* 색/내 캐릭터/NPC 변경은 classList·style 속성 변화라 자동저장(MutationObserver)이 못 잡는다 -
+       명시적으로 저장을 불러줘야 한다 */
+    if (typeof serialize === 'function') serialize();
+    ov.remove();
+  });
+}
+document.querySelectorAll('.chip-edit').forEach(el => el.addEventListener('click', e => {
+  e.preventDefault(); e.stopPropagation(); openCharModal(el.dataset.edit);
+}));
+
+/* 동명 캐릭터 로그 합치기 */
+function mergeChars(srcKey, dstKey) {
+  const dst = charMeta[dstKey];
+  document.querySelectorAll(`.msg[data-char="${CSS.escape(srcKey)}"]`).forEach(m => {
+    m.dataset.char = dstKey;
+    const by = m.querySelector('.mhead .by');
+    if (by) { by.textContent = dst.display; by.style.color = dst.color; }
+    if (!m.dataset.avatarOverride) { dst.avatar ? setAvatar(m, dst.avatar) : sealAvatar(m, dst.color); }
+  });
+  const srcChip = document.querySelector(`.char-chip[data-chip="${CSS.escape(srcKey)}"]`);
+  const dstChip = document.querySelector(`.char-chip[data-chip="${CSS.escape(dstKey)}"]`);
+  if (dstChip) {
+    const cnt = dstChip.querySelector('.chip-count');
+    const add = srcChip ? (parseInt(srcChip.querySelector('.chip-count').textContent) || 0) : 0;
+    cnt.textContent = (parseInt(cnt.textContent) || 0) + add;
+  }
+  if (srcChip) srcChip.remove();
+  delete charMeta[srcKey];
+  apply();
+}
+
+/* ── 블록 우클릭 메뉴 ── */
+let menu = null;
+function closeMenu() { if (menu) { menu.remove(); menu = null; } }
+document.addEventListener('click', closeMenu);
+document.addEventListener('contextmenu', e => {
+  if (READER) return;
+  const m = e.target.closest('.msg');
+  if (!m) return;
+  e.preventDefault(); closeMenu();
+  menu = document.createElement('div'); menu.className = 'ctxmenu';
+  const items = [];
+  if (m.dataset.type === 'general') {
+    items.push(['아바타 수정 (이 블록만)', () => openUploadModal('아바타 수정 (이 블록만)',
+      d => { setAvatar(m, d); m.dataset.avatarOverride = '1'; },
+      () => { sealAvatar(m, (charMeta[m.dataset.char] || {}).color || '#999'); m.dataset.avatarOverride = '1'; },
+      collectRecentAvatars(m.dataset.char),
+      m.dataset.avatarOverride ? () => revertBlockAvatar(m) : null)]);
+  }
+  items.push(['내용 수정', () => {
+    const c = m.querySelector('.mcontent');
+    c.contentEditable = true; c.focus();
+    c.addEventListener('blur', () => { if (!document.body.classList.contains('editing')) c.contentEditable = false; }, { once: true });
+  }]);
+  items.push(['태그 수정 (고급)', () => openTagModal(m)]);
+  items.push(null);
+  items.push(['위에 블록 추가', () => openAddBlockModal(m, 'before')]);
+  items.push(['아래에 블록 추가', () => openAddBlockModal(m, 'after')]);
+  items.push(null);
+  items.push(['블록 삭제', () => confirmModal('이 블록을 삭제할까요? 저장하기 전이라면 새로고침으로 되돌릴 수 있지만, 저장 후에는 되돌릴 수 없습니다.', '삭제', () => m.remove()), 'danger']);
+  for (const it of items) {
+    if (!it) { const s = document.createElement('div'); s.className = 'sep'; menu.appendChild(s); continue; }
+    const [label, fn, cls] = it;
+    const b = document.createElement('button'); b.textContent = label;
+    if (cls) b.classList.add(cls);
+    b.addEventListener('click', () => { closeMenu(); fn(); });
+    menu.appendChild(b);
+  }
+  menu.style.left = Math.min(e.clientX, innerWidth - 200) + 'px';
+  menu.style.top = Math.min(e.clientY, innerHeight - 280) + 'px';
+  document.body.appendChild(menu);
+});
+
+/* ── 편집 모드: 프로필 사진 클릭 → 전체/개별 아바타 선택 → 드래그앤드롭 업로드 ── */
+document.addEventListener('click', e => {
+  if (!document.body.classList.contains('editing')) return;
+  const av = e.target.closest('#log .msg .avatar');
+  if (!av) return;
+  e.preventDefault();
+  const m = av.closest('.msg');
+  const key = m.dataset.char;
+  const disp = (charMeta[key] && charMeta[key].display) || key;
+  closeMenu();
+  menu = document.createElement('div'); menu.className = 'ctxmenu';
+  const color = (charMeta[key] && charMeta[key].color) || '#999';
+  const items = [
+    [`전체 아바타 — ${disp}의 모든 블록`, () => openUploadModal(`전체 아바타 변경 — ${disp}`,
+        d => applyAvatarAll(key, d), () => removeAvatarAll(key), collectRecentAvatars(key))],
+    ['개별 아바타 — 이 블록만', () => openUploadModal('개별 아바타 변경 (이 블록만)',
+        d => { setAvatar(m, d); m.dataset.avatarOverride = '1'; },
+        () => { sealAvatar(m, color); m.dataset.avatarOverride = '1'; },
+        collectRecentAvatars(key),
+        m.dataset.avatarOverride ? () => revertBlockAvatar(m) : null)],
+    null,
+    [`아바타 없애기 (전체)`, () => confirmModal(`${disp}의 모든 아바타를 없애고 단색 인장으로 되돌릴까요?`, '없애기', () => removeAvatarAll(key)), 'danger'],
+    ['아바타 없애기 (이 블록만)', () => confirmModal('이 블록의 아바타를 없애고 단색 인장으로 되돌릴까요?', '없애기', () => { sealAvatar(m, color); m.dataset.avatarOverride = '1'; }), 'danger'],
+  ];
+  for (const it of items) {
+    if (!it) { const s = document.createElement('div'); s.className = 'sep'; menu.appendChild(s); continue; }
+    const [label, fn, cls] = it;
+    const b = document.createElement('button'); b.textContent = label;
+    if (cls) b.classList.add(cls);
+    b.addEventListener('click', () => { closeMenu(); fn(); });
+    menu.appendChild(b);
+  }
+  menu.style.left = Math.min(e.clientX, innerWidth - 260) + 'px';
+  menu.style.top = Math.min(e.clientY, innerHeight - 190) + 'px';
+  document.body.appendChild(menu);
+});
+
+/* ── 블록 추가 모달 ── */
+let newBlockSeq = 0;
+function openAddBlockModal(m, where) {
+  const opts = Object.keys(charMeta).map(k =>
+    `<option value="${k}">${charMeta[k].display}</option>`).join('');
+  const ov = document.createElement('div'); ov.className = 'overlay';
+  ov.innerHTML = `<div class="modal"><h3>${where === 'before' ? '위에' : '아래에'} 블록 추가</h3>
+    <div class="mrow opts"><label><input type="radio" name="nbtype" value="desc" checked> 서술</label>
+      <label><input type="radio" name="nbtype" value="general"> 대사</label></div>
+    <div class="mrow" id="nbchar" style="display:none"><span>캐릭터</span>
+      <select id="nbsel" style="flex:1;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px">${opts}</select></div>
+    <div class="mbtns"><button id="nc">취소</button><button class="primary" id="no">추가</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.querySelectorAll('input[name=nbtype]').forEach(r => r.addEventListener('change', () => {
+    ov.querySelector('#nbchar').style.display =
+      ov.querySelector('input[name=nbtype]:checked').value === 'general' ? 'flex' : 'none';
+  }));
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  ov.querySelector('#nc').addEventListener('click', () => ov.remove());
+  ov.querySelector('#no').addEventListener('click', () => {
+    const type = ov.querySelector('input[name=nbtype]:checked').value;
+    const nb = document.createElement('div');
+    nb.className = 'msg ' + type;
+    nb.dataset.type = type;
+    nb.id = 'new-' + (++newBlockSeq);
+    if (type === 'general') {
+      const key = ov.querySelector('#nbsel').value;
+      const meta = charMeta[key];
+      nb.dataset.char = key;
+      const avatar = meta && meta.avatar
+        ? `<img src="${meta.avatar}">`
+        : `<b style="background:${meta ? meta.color : '#999'}"></b>`;
+      nb.innerHTML = `<div class="avatar">${avatar}</div><div class="mbody">
+        <div class="mhead"><span class="by" style="color:${meta ? meta.color : '#999'}">${meta ? meta.display : key}</span></div>
+        <div class="mcontent">새 대사</div></div>`;
+    } else {
+      nb.dataset.char = '';
+      nb.innerHTML = `<div class="mbody"><div class="mcontent">새 서술</div></div>`;
+    }
+    where === 'before' ? m.before(nb) : m.after(nb);
+    ov.remove();
+    const c = nb.querySelector('.mcontent');
+    c.contentEditable = true; c.focus();
+    document.getSelection().selectAllChildren(c);
+    c.addEventListener('blur', () => { if (!document.body.classList.contains('editing')) c.contentEditable = false; }, { once: true });
+  });
+}
+
+/* ── 게시 비밀번호 등록 (열쇠 버튼) ── */
+let pubPassword = null;
+const pwbtnEl = document.getElementById('pwbtn');
+const EYE_SVG = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYEOFF_SVG = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></svg>';
+if (pwbtnEl) pwbtnEl.addEventListener('click', () => {
+  const ov = document.createElement('div'); ov.className = 'overlay';
+  ov.innerHTML = `<div class="modal"><h3>게시 비밀번호 등록</h3>
+    <div class="hint" style="margin:0 0 8px">게시(암호화 업로드) 시 이 비밀번호로 페이지가 잠깁니다. 확인 입력 없이 바로 등록돼요.</div>
+    <div class="pwwrap"><input type="password" id="pwin" value="${pubPassword || ''}" placeholder="비밀번호 입력" autocomplete="new-password">
+      <button class="eyebtn" id="pweye">${EYE_SVG}</button></div>
+    <div class="mbtns">${pubPassword ? '<button class="danger" id="pd">삭제</button>' : ''}<button id="pc">취소</button><button class="primary" id="po">등록</button></div></div>`;
+  document.body.appendChild(ov);
+  const pwin = ov.querySelector('#pwin'), eye = ov.querySelector('#pweye');
+  pwin.focus();
+  const pd = ov.querySelector('#pd');
+  if (pd) pd.addEventListener('click', () => {
+    ov.remove();
+    confirmModal('등록된 게시 비밀번호를 삭제할까요?<br>이후 게시물은 비밀번호 없이 공개 게시됩니다.', '삭제', () => {
+      pubPassword = null;
+      document.getElementById('pwbtn').classList.remove('on');
+    });
+  });
+  eye.addEventListener('click', () => {
+    const show = pwin.type === 'password';
+    pwin.type = show ? 'text' : 'password';
+    eye.innerHTML = show ? EYEOFF_SVG : EYE_SVG;
+    pwin.focus();
+  });
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  ov.querySelector('#pc').addEventListener('click', () => ov.remove());
+  ov.querySelector('#po').addEventListener('click', () => {
+    pubPassword = pwin.value.trim() || null;
+    document.getElementById('pwbtn').classList.toggle('on', !!pubPassword);
+    ov.remove();
+  });
+});
+
+/* ── 저장(HTML 다운로드) ── */
+const msgrbtn = document.getElementById('msgrbtn');
+if (msgrbtn) msgrbtn.addEventListener('click', () => {
+  document.body.classList.toggle('msgr', msgrbtn.classList.toggle('on'));
+});
+function refreshMine() {
+  document.querySelectorAll('.msg.general').forEach(m => {
+    const cm = charMeta[m.dataset.char] || {};
+    m.classList.toggle('mine', !!cm.mine);
+    m.classList.toggle('npc', !!cm.npc);
+  });
+}
+refreshMine();
+const savebtn = document.getElementById('savebtn');
+if (savebtn) savebtn.addEventListener('click', () => {
+  closeMenu();
+  document.querySelectorAll('.overlay').forEach(o => o.remove());
+  const clone = document.documentElement.cloneNode(true);
+  clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+  const blob = new Blob(['<!DOCTYPE html>\n' + clone.outerHTML], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (sessionInfo.title || '로그').replace(/[\\/:*?"<>|]/g, '_') + '_편집본.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+</script>
+
+<!-- Crit 앱 임베드용: 다른 페이지의 iframe 안에서 열릴 때는 자체 전역 메뉴를 숨깁니다 -->
+<style>html.crit-embedded .topnav { display: none !important; }</style>
+<script>if (window.self !== window.top) document.documentElement.classList.add('crit-embedded')</script>
+
+<!-- Crit: 이 뷰어의 테마(포인트 컬러/모드)를 저장해 다시 열어도 유지합니다 (로그별 테마) -->
+<script>
+(function () {
+  var KEY = 'crit-log-theme:' + ((window.__CRIT_ID || new URLSearchParams(location.search).get('id')) || 'tpl');
+  var col = document.getElementById('c-accent'), hex = document.getElementById('h-accent');
+  var tstampBox = document.getElementById('opt-tstamp');
+  /* 판정 헤더(SAN Roll 등) 색 - c-rt1/c-rt2/rtmode는 여태 저장 대상이 아니었다(실제로
+     겪은 버그 - "판정 헤더 색을 바꾼게 저장이 안 돼"). applyTheme()가 화면에만 즉시
+     반영하고 끝나서, 다시 열면(그리고 게시본에는 애초에) 항상 기본값으로 돌아왔다 */
+  var cRt1 = document.getElementById('c-rt1'), hRt1 = document.getElementById('h-rt1');
+  var cRt2 = document.getElementById('c-rt2'), hRt2 = document.getElementById('h-rt2');
+  if (!col) return;
+  try {
+    var t = JSON.parse(localStorage.getItem(KEY));
+    if (t) {
+      if (t.accent) { col.value = t.accent; if (hex) hex.value = t.accent; col.dispatchEvent(new Event('input', { bubbles: true })); }
+      if (t.mode) {
+        var r = document.querySelector('input[name=thememode][value=' + t.mode + ']');
+        if (r && !r.checked) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); }
+      }
+      /* 날짜/시간 표시 체크는 여태 저장이 안 돼서, 꺼놔도 다시 열면 항상 켜진 채로 돌아왔다 */
+      if (tstampBox && t.tstamp === false) {
+        tstampBox.checked = false;
+        document.body.classList.add('no-tstamp');
+      }
+      if (t.rtMode) {
+        var rt = document.querySelector('input[name=rtmode][value=' + t.rtMode + ']');
+        if (rt && !rt.checked) rt.checked = true;
+      }
+      if (t.rt1 && cRt1) { cRt1.value = t.rt1; if (hRt1) hRt1.value = t.rt1; }
+      if (t.rt2 && cRt2) { cRt2.value = t.rt2; if (hRt2) hRt2.value = t.rt2; }
+      if (typeof applyTheme === 'function') applyTheme();
+    }
+  } catch (e) {}
+  function saveT() {
+    var c = document.querySelector('input[name=thememode]:checked');
+    var rtc = document.querySelector('input[name=rtmode]:checked');
+    try {
+      localStorage.setItem(KEY, JSON.stringify({
+        accent: col.value, mode: c ? c.value : 'dark', tstamp: tstampBox ? tstampBox.checked : true,
+        rtMode: rtc ? rtc.value : 'grad',
+        rt1: cRt1 ? cRt1.value : '', rt2: cRt2 ? cRt2.value : ''
+      }));
+    } catch (e) {}
+  }
+  col.addEventListener('input', saveT);
+  if (hex) hex.addEventListener('input', saveT);
+  if (tstampBox) tstampBox.addEventListener('change', saveT);
+  document.querySelectorAll('input[name=thememode]').forEach(function (r) { r.addEventListener('change', saveT); });
+  if (cRt1) cRt1.addEventListener('input', saveT);
+  if (cRt2) cRt2.addEventListener('input', saveT);
+  document.querySelectorAll('input[name=rtmode]').forEach(function (r) { r.addEventListener('change', saveT); });
+})();
+</script>
+<!-- crit-preview-mode: ?preview=1 로 열리면 게시본처럼 편집 UI를 숨깁니다 (검색/테마/메신저 스타일만 유지) -->
+<script>
+(function () {
+  if (!(window.__CRIT_PREVIEW || new URLSearchParams(location.search).has("preview"))) return;
+  var HIDE = ["세션 정보", "편집 모드", "업데이트", "지문출력 캐릭터", "사담 캐릭터", "비밀번호", "저장"];
+  document.querySelectorAll("button").forEach(function (b) {
+    var t = b.textContent.trim();
+    if (HIDE.indexOf(t) !== -1) b.style.display = "none";
+  });
+  document.querySelectorAll("#keybtn, .keybtn, #lockbtn").forEach(function (b) { b.style.display = "none"; });
+})();
+</script>
+<!-- crit-viewer-publish: 앱 안(iframe)에서는 업데이트 버튼이 HTML 저장 대신 GitHub 게시를 요청 -->
+<script>
+(function () {
+  if (window.self === window.top) return; /* 브라우저 단독 열람 시엔 기존 저장 동작 유지 */
+  var btn = document.getElementById("savebtn");
+  if (!btn) return;
+  btn.addEventListener("click", function (e) {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    window.parent.postMessage("crit-publish", "*");
+  }, true);
+})();
+</script>
+<!-- crit-preview2: 게시본(리더) 모드 - 통계·탭·캐릭터 리스트와 편집 요소를 숨기고 검색/테마/메신저만 남김 -->
+<style>
+  html.crit-preview .stats, html.crit-preview .bartitle, html.crit-preview .tabbar,
+  html.crit-preview .charbar, html.crit-preview #pwbtn, html.crit-preview .chip-edit,
+  html.crit-preview .allbtn { display: none !important; }
+</style>
+<script>
+if ((window.__CRIT_PREVIEW || new URLSearchParams(location.search).has("preview"))) document.documentElement.classList.add("crit-preview");
+</script>
+<!-- crit-pass: 게시 비밀번호를 저장해 두었다가 게시할 때 비밀번호 게이트를 겁니다 -->
+<script>
+(function () {
+  if (typeof pubPassword === "undefined") return;
+  var KEY = "crit-log-pass:" + ((window.__CRIT_ID || new URLSearchParams(location.search).get("id")) || "tpl");
+  try {
+    var p = localStorage.getItem(KEY);
+    if (p) {
+      pubPassword = p;
+      var b = document.getElementById("pwbtn");
+      if (b) b.style.color = "var(--accent)";
+    }
+  } catch (e) {}
+  /* 열쇠 모달의 버튼 조작 후 pubPassword 상태를 저장 */
+  document.addEventListener("click", function (e) {
+    if (!e.target || !e.target.closest) return;
+    var m = e.target.closest(".modal");
+    if (!m || !m.querySelector("#pwin")) return;
+    setTimeout(function () {
+      try {
+        if (pubPassword) localStorage.setItem(KEY, pubPassword);
+        else localStorage.removeItem(KEY);
+      } catch (err) {}
+    }, 80);
+  }, true);
+})();
+</script>
+<!-- crit-subtitle-players: 제목 옆 설명문 자리에 함께한 플레이어 닉네임 표시 (뱃지 줄은 데이터 소스로만 사용) -->
+<style>#s-players { display: none !important; }
+#s-title { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+#s-title span:not(.t-writer) { margin-left: auto; }</style>
+<script>
+(function () {
+  var sub = document.querySelector("#s-title span:not(.t-writer)");
+  var pl = document.getElementById("s-players");
+  if (!sub) return;
+  function upd() {
+    var names = pl ? Array.prototype.map.call(pl.querySelectorAll(".pbadge"), function (b) { return b.textContent.trim(); }) : [];
+    var party = "";
+    try { party = (sessionInfo && sessionInfo.party) || ""; } catch (e) {}
+    var gm = "";
+    try { gm = (sessionInfo && sessionInfo.gm) || ""; } catch (e) {}
+    var players = [];
+    try { players = (sessionInfo && sessionInfo.players) || []; } catch (e) {}
+    /* 파티명만 보여주면 누가 GM/PL인지 안 보였다 - 파티명 뒤에 [GM.이름 PL.이름,이름] 형태로
+       역할별 인원을 같이 붙인다 */
+    var parts = [];
+    if (gm) parts.push("GM." + gm);
+    if (players.length) parts.push("PL." + players.join(","));
+    var bracket = parts.length ? ("[" + parts.join(" ") + "]") : "";
+    var combined = party ? (party + (bracket ? " " + bracket : "")) : bracket;
+    sub.textContent = combined || names.join(" · ");
+  }
+  upd();
+  if (pl) new MutationObserver(upd).observe(pl, { childList: true });
+})();
+</script>
+<!-- crit-sess-persist: 세션 정보(제목/라이터/플레이어/파티명/개요)를 저장해 다시 열어도 유지 -->
+<script>
+(function () {
+  var KEY = "crit-log-sess:" + ((window.__CRIT_ID || new URLSearchParams(location.search).get("id")) || "tpl");
+  try {
+    var sv = JSON.parse(localStorage.getItem(KEY));
+    if (sv) { Object.assign(sessionInfo, sv); renderSession(); }
+  } catch (e) {}
+  var pl = document.getElementById("s-players");
+  if (pl) new MutationObserver(function () {
+    try { localStorage.setItem(KEY, JSON.stringify(sessionInfo)); } catch (e) {}
+  }).observe(pl, { childList: true });
+})();
+</script>
+<!-- crit-modal-dragguard: 모달 안에서 드래그를 시작해 바깥에서 놓아도 모달이 닫히지 않게 (전체 모달 공통) -->
+<script>
+(function () {
+  var downTarget = null;
+  document.addEventListener("pointerdown", function (e) { downTarget = e.target; }, true);
+  document.addEventListener("click", function (e) {
+    var t = e.target;
+    if (!t || !t.classList || !t.classList.contains("overlay")) return;
+    /* 클릭이 오버레이(배경)에서 시작되지 않았다면 = 모달 내부에서 드래그 시작 → 닫힘 차단 */
+    if (downTarget !== t) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+    }
+  }, true);
+})();
+</script>
+<!-- crit-crop: 공용 이미지 자르기 모달 - 비율 고정, 드래그 이동, 확대 슬라이더 -->
+<script>
+(function () {
+  if (window.critCrop) return;
+  window.critCrop = function (dataUrl, ratio, cb) {
+    var VW = 300, VH = Math.round(VW / ratio);
+    var img = new Image();
+    img.onload = function () {
+      var iw = img.width, ih = img.height;
+      var base = Math.max(VW / iw, VH / ih);
+      var zoom = 1, ox = 0, oy = 0;
+      var ov = document.createElement("div");
+      ov.className = "overlay";
+      ov.style.cssText = "position:fixed;inset:0;z-index:100001;background:#0008;display:flex;align-items:center;justify-content:center";
+      ov.innerHTML = '<div style="background:var(--panel,#1d1b21);border:1px solid var(--line,#34313a);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px">' +
+        '<div style="font-size:14px;font-weight:800;color:var(--text,#f0edf3)">이미지 자르기</div>' +
+        '<div id="cc-vp" style="width:' + VW + 'px;height:' + VH + 'px;overflow:hidden;position:relative;border-radius:10px;border:1px solid var(--line,#34313a);cursor:grab;touch-action:none;background:#111"></div>' +
+        '<input id="cc-zoom" type="range" min="100" max="300" value="100" style="accent-color:var(--accent,#B26A9E)">' +
+        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+        '<button id="cc-c" style="background:var(--panel2,#26242c);color:var(--text,#f0edf3);border:1px solid var(--line,#34313a);border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;font-family:inherit">취소</button>' +
+        '<button id="cc-ok" style="background:var(--accent,#B26A9E);color:#fff;border:1px solid var(--accent,#B26A9E);border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;font-family:inherit">확인</button></div></div>';
+      var vp = ov.querySelector("#cc-vp");
+      var el = document.createElement("img");
+      el.src = dataUrl; el.draggable = false;
+      el.style.cssText = "position:absolute;pointer-events:none;user-select:none;max-width:none";
+      vp.appendChild(el);
+      function layout() {
+        var s = base * zoom, w = iw * s, h = ih * s;
+        var maxX = (w - VW) / 2, maxY = (h - VH) / 2;
+        ox = Math.max(-maxX, Math.min(maxX, ox));
+        oy = Math.max(-maxY, Math.min(maxY, oy));
+        el.style.width = w + "px"; el.style.height = h + "px";
+        el.style.left = (VW / 2 - w / 2 + ox) + "px";
+        el.style.top = (VH / 2 - h / 2 + oy) + "px";
+      }
+      layout();
+      vp.addEventListener("pointerdown", function (e) {
+        e.preventDefault();
+        vp.setPointerCapture(e.pointerId);
+        var sx = e.clientX, sy = e.clientY, o0x = ox, o0y = oy;
+        function mv(ev) { ox = o0x + (ev.clientX - sx); oy = o0y + (ev.clientY - sy); layout(); }
+        function up() { vp.removeEventListener("pointermove", mv); vp.removeEventListener("pointerup", up); }
+        vp.addEventListener("pointermove", mv);
+        vp.addEventListener("pointerup", up);
+      });
+      ov.querySelector("#cc-zoom").addEventListener("input", function (e) { zoom = e.target.value / 100; layout(); });
+      ov.querySelector("#cc-c").addEventListener("click", function () { ov.remove(); });
+      ov.addEventListener("click", function (e) { if (e.target === ov) ov.remove(); });
+      ov.querySelector("#cc-ok").addEventListener("click", function () {
+        var s = base * zoom;
+        var cv = document.createElement("canvas");
+        cv.width = VW * 2; cv.height = VH * 2;
+        var left = VW / 2 - iw * s / 2 + ox, top = VH / 2 - ih * s / 2 + oy;
+        cv.getContext("2d").drawImage(img, -left / s, -top / s, VW / s, VH / s, 0, 0, VW * 2, VH * 2);
+        var out = cv.toDataURL(/^data:image\/(png|webp|gif)/.test(String(img.src)) ? "image/png" : "image/jpeg", 0.92);
+        ov.remove();
+        cb(out);
+      });
+      document.body.appendChild(ov);
+    };
+    img.src = dataUrl;
+  };
+})();
+</script>
+<!-- crit-fancy-all: 앱의 모든 셀렉트를 테마 드롭다운으로 (동적 생성/표시 전환 포함) -->
+<style>
+  .fwrap { position: relative; flex: 1; display: flex; min-width: 0; }
+  .fwrap .fsel { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 11px;
+    color: var(--text); font-size: 13px; font-family: inherit; cursor: pointer; text-align: left; min-width: 0; }
+  .fwrap .fsel { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fwrap .fsel::after { content: "▾"; font-size: 10px; color: var(--dim); flex: none; }
+  .fwrap .fsel:hover, .fwrap .fsel.open { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+  .fwrap .fmenu { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 80;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 4px;
+    box-shadow: 0 10px 30px #0007; max-height: 240px; overflow-y: auto; }
+  .fwrap .fitem { padding: 7px 11px; border-radius: 7px; font-size: 13px; color: var(--text); cursor: pointer;
+    display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fwrap .fitem:hover { background: color-mix(in srgb, var(--accent) 20%, var(--panel2)); }
+  .fwrap .fitem.on { color: color-mix(in srgb, var(--accent) 65%, var(--text)); font-weight: 700; }
+  .fwrap .fdot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+</style>
+<script>
+(function () {
+  function dotColor(val) {
+    try {
+      var c = (typeof cats !== "undefined") && cats.find ? cats.find(function (x) { return x.key === val; }) : null;
+      return c ? c.color : null;
+    } catch (e) { return null; }
+  }
+  function visible(sel) { return sel.style.display !== "none"; }
+  function fancify(sel) {
+    if (sel.dataset.fancy) return;
+    sel.dataset.fancy = "1";
+    var wrap = document.createElement("span");
+    wrap.className = "fwrap";
+    sel.parentNode.insertBefore(wrap, sel);
+    wrap.appendChild(sel);
+    var wasHidden = !visible(sel);
+    sel.style.display = "none";
+    var btn = document.createElement("button");
+    btn.type = "button"; btn.className = "fsel"; /* critkeep 없음: 게시본에서는 버튼 숨김 규칙으로 자동 제거 */
+    if (wasHidden) wrap.style.display = "none";
+    function label() {
+      var o = sel.selectedOptions[0];
+      btn.innerHTML = "";
+      if (o) {
+        var col = dotColor(o.value);
+        if (col) { var d = document.createElement("span"); d.className = "fdot"; d.style.background = col; btn.appendChild(d); }
+        btn.appendChild(document.createTextNode(o.textContent));
+      } else btn.appendChild(document.createTextNode("선택"));
+    }
+    label();
+    wrap.appendChild(btn);
+    var menu = null;
+    function close() { if (menu) { menu.remove(); menu = null; btn.classList.remove("open"); } }
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (menu) { close(); return; }
+      menu = document.createElement("div");
+      menu.className = "fmenu";
+      Array.prototype.forEach.call(sel.options, function (o) {
+        var it = document.createElement("div");
+        it.className = "fitem" + (o.selected ? " on" : "");
+        var col = dotColor(o.value);
+        if (col) { var d = document.createElement("span"); d.className = "fdot"; d.style.background = col; it.appendChild(d); }
+        it.appendChild(document.createTextNode(o.textContent));
+        it.addEventListener("click", function (e2) {
+          e2.stopPropagation();
+          sel.value = o.value;
+          sel.dispatchEvent(new Event("change", { bubbles: true }));
+          sel.dispatchEvent(new Event("input", { bubbles: true }));
+          label(); close();
+        });
+        menu.appendChild(it);
+      });
+      wrap.appendChild(menu);
+      btn.classList.add("open");
+    });
+    document.addEventListener("click", close);
+    /* select의 표시/값이 바뀌면 버튼도 동기화 (예: 온보딩 모니터 선택 표시 전환) */
+    var reHiding = false;
+    new MutationObserver(function () {
+      if (reHiding) { reHiding = false; return; }
+      if (visible(sel)) {
+        /* 외부 코드가 select를 다시 보이게 함(예: 온보딩) → 래퍼만 보이고 원본은 계속 숨김 */
+        wrap.style.display = "";
+        reHiding = true;
+        sel.style.display = "none";
+        label();
+      } else {
+        wrap.style.display = "none";
+      }
+    }).observe(sel, { attributes: true, attributeFilter: ["style", "class"] });
+    sel.addEventListener("change", label);
+    /* 옵션이 뒤늦게 채워지는 경우(모니터 목록 등) 라벨 갱신 */
+    new MutationObserver(label).observe(sel, { childList: true });
+  }
+  function scan(root) {
+    if (!root.querySelectorAll) return;
+    root.querySelectorAll("select:not([data-fancy])").forEach(fancify);
+  }
+  scan(document);
+  new MutationObserver(function (ms) {
+    ms.forEach(function (m) {
+      Array.prototype.forEach.call(m.addedNodes, function (n) {
+        if (n.nodeType === 1) { if (n.tagName === "SELECT") fancify(n); else scan(n); }
+      });
+    });
+  }).observe(document.body, { childList: true, subtree: true });
+})();
+</script>
+<!-- crit-editmode-visual: 편집 모드 켜짐을 확실히 보이게 (버튼 강조 + 라벨 + 블록 호버 표시) -->
+<style>
+  body.editing #editbtn { background: color-mix(in srgb, var(--accent) 26%, var(--panel2)) !important;
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--line)) !important;
+    color: color-mix(in srgb, var(--accent) 62%, var(--text)) !important; font-weight: 700; }
+  body.editing [contenteditable="true"]:hover { outline: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--line));
+    border-radius: 6px; }
+  body.editing [contenteditable="true"]:focus { outline: 1px solid color-mix(in srgb, var(--accent) 60%, var(--line));
+    border-radius: 6px; }
+</style>
+<script>
+(function () {
+  var b = document.getElementById("editbtn");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    setTimeout(function () {
+      b.textContent = document.body.classList.contains("editing") ? "편집 중 — 클릭해 종료" : "편집 모드";
+    }, 0);
+  });
+})();
+</script>
+<!-- crit-extlink: 외부 링크는 항상 기본 브라우저로 (프로토콜 없는 주소 보정 포함) -->
+<script>
+document.addEventListener("click", function (e) {
+  var a = e.target.closest ? e.target.closest("a[href]") : null;
+  if (!a) return;
+  var raw = a.getAttribute("href") || "";
+  if (/^(#|javascript:|mailto:)/i.test(raw)) return;
+  var isAbs = /^https?:\/\//i.test(raw);
+  var domainish = /^[\w-]+(\.[\w-]+)+([\/?#]|$)/.test(raw) && raw.indexOf(".html") === -1;
+  if (!isAbs && !domainish) return; /* 내부 페이지 이동은 그대로 */
+  e.preventDefault();
+  e.stopPropagation();
+  var u = isAbs ? raw : "https://" + raw;
+  if (window.api && window.api.app && window.api.app.openExternal) window.api.app.openExternal(u);
+  else window.open(u, "_blank", "noopener");
+}, true);
+</script>
+<!-- crit-lv-proto-persist: 프로토타입 뷰어에서의 모든 편집을 로그 데이터로 자동 저장 -->
+<script>
+(function () {
+  var qid = (window.__CRIT_ID || new URLSearchParams(location.search).get("id"));
+  if (!qid || !window.CRIT_IMPORT_DATA) return;
+  if ((window.__CRIT_PREVIEW || new URLSearchParams(location.search).has("preview"))) return;
+  var data = window.CRIT_IMPORT_DATA;
+  function serialize() {
+    if (window.CRIT_BUILDING) return; /* 점진 렌더링 중에는 부분 DOM 저장 금지 */
+    try {
+      var blocks = [];
+      document.querySelectorAll("#log .msg").forEach(function (m) {
+        var mc = m.querySelector(".mcontent");
+        if (!mc) return;
+        var isDesc = m.dataset.type === "desc";
+        var isRoll = !!m.querySelector("[class*=rolltemplate], table");
+        var ts = m.querySelector(".tstamp");
+        var blockObj = {
+          y: isDesc ? "desc" : (isRoll ? "roll" : "say"),
+          sp: m.dataset.char || null,
+          ts: ts ? ts.textContent : null,
+          tab: m.dataset.tab || null,
+          html: mc.innerHTML
+        };
+        /* "이 블록만" 아바타 수정을 DOM에만 반영하고 안 구워서 새로고침하면 사라지던
+           문제(실제로 겪은 버그) - avOv 프로퍼티가 있어야만(hasOwnProperty) "이 블록은
+           오버라이드됨"으로 읽히므로, 오버라이드 아닌 블록엔 아예 이 키를 안 넣는다 */
+        if (m.dataset.avatarOverride) {
+          var avImg = m.querySelector(".avatar img");
+          blockObj.avOv = avImg ? avImg.getAttribute("src") : null;
+        }
+        blocks.push(blockObj);
+      });
+      if (blocks.length) data.blocks = blocks;
+      data.charMeta = charMeta;
+      if (typeof sessionInfo === "object" && sessionInfo) {
+        if (sessionInfo.title) data.title = sessionInfo.title;
+        if (sessionInfo.players) data.players = sessionInfo.players;
+        if (sessionInfo.party) data.party = sessionInfo.party;
+      }
+      localStorage.setItem("crit-log-data:" + qid, JSON.stringify(data));
+      /* 보관함 리스트 제목 동기화 */
+      var ul = JSON.parse(localStorage.getItem("crit-user-logs")) || [];
+      var en = ul.find(function (x) { return String(x.id) === String(qid); });
+      if (en && data.title && en.t !== data.title) {
+        en.t = data.title;
+        en.mod = new Date().toISOString().slice(0, 10);
+        localStorage.setItem("crit-user-logs", JSON.stringify(ul));
+        try { if (window.parent !== window) window.parent.postMessage({ crit: "log-title", id: qid, t: data.title }, "*"); } catch (e) {}
+      }
+    } catch (e) { console.warn("crit-lv-proto-persist 저장 실패", e); }
+  }
+  var tm = null;
+  function later() { clearTimeout(tm); tm = setTimeout(serialize, 500); }
+  document.addEventListener("crit-log-built", later);
+  new MutationObserver(later).observe(document.getElementById("log"), { childList: true, subtree: true, characterData: true, attributes: true });
+  var cb = document.querySelector(".charbar");
+  if (cb) new MutationObserver(later).observe(cb, { childList: true, subtree: true, characterData: true, attributes: true });
+  var hero = document.querySelector(".hero");
+  if (hero) new MutationObserver(later).observe(hero, { childList: true, subtree: true, characterData: true });
+  window.addEventListener("beforeunload", serialize);
+})();
+</script>
+<style>/* crit-lv-extra: 연속 발화 묶음(cont) + 지문 표시 보강 */
+.msg.general.cont { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; padding-top: 0; }
+.msg.general:has(+ .msg.general.cont) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.msg.general.cont .mhead { display: none; }
+.msg.general.cont .avatar img, .msg.general.cont .avatar b { display: none; }
+/* crit-desc-contain: 지문 내용이 블록 밖으로 넘치지 않게 */
+.msg.desc .mcontent, .msg.handout .mcontent { overflow: hidden; }
+.msg.desc .mcontent [style*="position:absolute"], .msg.desc .mcontent [style*="position: absolute"],
+.msg.desc .mcontent [style*="position:fixed"], .msg.desc .mcontent [style*="position: fixed"] { position: static !important; }
+.msg.desc .mcontent > * { margin-top: 4px !important; margin-bottom: 4px !important; max-width: 100%; }
+.msg.desc .mcontent img { max-width: 100%; height: auto; }
+/* 지문 상자를 전체 폭으로: 태그 본래 성질대로 div는 전체 폭, span/칩은 인라인 유지 */
+.msg.desc .mbody { width: 100%; }
+</style>
+<style>/* crit-preview-notheme: 게시본에서는 테마 변경 불가 */ html.crit-preview .settings { display: none !important; }</style>
+<!-- crit-plainchar: 캐릭터 색·아바타 무표시 토글 (캐릭터 칩 우클릭) - 단순 NPC용 -->
+<script>
+(function () {
+  if (typeof charMeta === "undefined") return;
+  function esc2(k) { return k.replace(/"/g, '\\"'); }
+  function applyPlain() {
+    Object.keys(charMeta).forEach(function (k) {
+      var plain = !!charMeta[k].plain;
+      /* plain이 아닐 때 color를 ""로 지워버리면 캐릭터 고유색이 사라지고 테마 기본색으로
+         보였다 - 매번 로그를 열 때마다 이 스크립트가 뒤에서 실행되면서 방금 렌더된
+         charMeta 색을 도로 지우고 있었다. plain이 아니면 charMeta의 실제 색으로 되돌린다. */
+      var col = charMeta[k].color || '#9a95a0';
+      document.querySelectorAll('.char-chip[data-chip="' + esc2(k) + '"]').forEach(function (c) {
+        var av = c.querySelector(".chip-avatar");
+        if (av) av.style.display = plain ? "none" : "";
+        var nm = c.querySelector(".chip-name");
+        if (nm) nm.style.color = plain ? "inherit" : col;
+      });
+      document.querySelectorAll('#log .msg[data-char="' + esc2(k) + '"]').forEach(function (m) {
+        var av2 = m.querySelector(".avatar");
+        if (av2) av2.style.visibility = plain ? "hidden" : "";
+        var by = m.querySelector(".by");
+        if (by) by.style.color = plain ? "inherit" : col;
+      });
+    });
+  }
+  applyPlain();
+  if ((window.__CRIT_PREVIEW || new URLSearchParams(location.search).has("preview"))) return;
+  document.addEventListener("contextmenu", function (e) {
+    var chip = e.target.closest ? e.target.closest(".char-chip") : null;
+    if (!chip) return;
+    var k = chip.dataset.chip;
+    if (!k || !charMeta[k]) return;
+    e.preventDefault();
+    document.querySelectorAll(".plainmenu").forEach(function (m) { m.remove(); });
+    var m = document.createElement("div");
+    m.className = "plainmenu";
+    m.style.cssText = "position:fixed;z-index:140;background:var(--panel);border:1px solid var(--line);" +
+      "border-radius:10px;padding:4px;min-width:190px;box-shadow:0 10px 30px #0007;" +
+      "left:" + Math.min(e.clientX, innerWidth - 210) + "px;top:" + Math.min(e.clientY, innerHeight - 60) + "px";
+    var b = document.createElement("button");
+    b.style.cssText = "display:block;width:100%;background:none;border:none;color:var(--text);" +
+      "font-size:12.5px;padding:7px 12px;border-radius:7px;cursor:pointer;font-family:inherit;text-align:left";
+    b.textContent = charMeta[k].plain ? "색·아바타 표시 복원" : "색·아바타 표시 없음 (단순 NPC)";
+    b.addEventListener("click", function () {
+      m.remove();
+      charMeta[k].plain = !charMeta[k].plain;
+      applyPlain();
+    });
+    m.appendChild(b);
+    document.body.appendChild(m);
+    setTimeout(function () {
+      var closeIt = function () { m.remove(); document.removeEventListener("click", closeIt); };
+      document.addEventListener("click", closeIt);
+    }, 0);
+  });
+})();
+</script>
+<style>
+/* crit-roll20-rollhi: Roll20 주사위 굴림도 CCF처럼 포인트 컬러로 강조 */
+.msg.general.rt-coc-1 { background: color-mix(in srgb, var(--accent) 9%, var(--panel));
+  border-left: 3px solid color-mix(in srgb, var(--accent) 55%, var(--line)); }
+</style>
+<!-- crit-msgr-persist: 메신저 보기는 업로더가 선택해 로그에 저장 - 게시본은 그 상태로 굽고 방문자에게는 토글 버튼 숨김 -->
+<script>
+(function () {
+  var data = window.CRIT_IMPORT_DATA || window.CRIT_LOG_DATA || null;
+  var qid = null;
+  try { qid = (window.__CRIT_ID || new URLSearchParams(location.search).get("id")); } catch (e) {}
+  if (!data && qid) { try { data = JSON.parse(localStorage.getItem("crit-log-data:" + qid)); } catch (e) {} }
+  var btn = document.getElementById("msgrbtn");
+  /* 저장된 선택 적용 */
+  if (data && data.msgr) {
+    document.body.classList.add("msgr");
+    if (btn) btn.classList.add("on");
+  }
+  /* 게시본(방문자)·미리보기에서는 토글 버튼 숨김 - 보기 방식은 업로더의 선택대로 고정 */
+  var isReader = false;
+  try { isReader = (window.__CRIT_PREVIEW || new URLSearchParams(location.search).has("preview")) || (!!window.CRIT_LOG_DATA && !window.CRIT_IMPORT_DATA); } catch (e) {}
+  if (isReader && btn) btn.style.display = "none";
+  /* 앱에서 토글하면 로그 데이터에 저장 */
+  if (btn && !isReader) btn.addEventListener("click", function () {
+    var on = document.body.classList.contains("msgr");
+    if (window.CRIT_IMPORT_DATA) window.CRIT_IMPORT_DATA.msgr = on;
+    if (qid) {
+      try {
+        var d2 = JSON.parse(localStorage.getItem("crit-log-data:" + qid));
+        if (d2) { d2.msgr = on; localStorage.setItem("crit-log-data:" + qid, JSON.stringify(d2)); }
+      } catch (e) {}
+    }
+  });
+})();
+</script>
+<style>/* crit-msg-cv: 대용량 로그 가속 - 화면 밖 블록은 레이아웃/페인트 생략 → 메신저 토글·첫 로드가 즉각 반응 */
+#log .msg { content-visibility: auto; contain-intrinsic-size: auto 64px; }
+/* 이름/아바타를 접은 줄(cont, noav+noname)은 실제 높이가 64px보다 훨씬 작아서, 화면에
+   처음 들어올 때 예약해둔 자리(64px)와 실제 크기가 크게 어긋나 위쪽이 잘려 보이거나
+   튀는 것처럼 보였다(실제로 겪은 버그, 긴 로그일수록 심함) - 실제 크기에 더 가깝게 줄인다 */
+#log .msg.general.cont, #log .msg.general.noav.noname { contain-intrinsic-size: auto 38px; }
+</style>
+
+<style>/* crit-msgr-fullwidth: 메신저 스타일에서도 지문(desc)·핸드아웃(info)은 좁은 말풍선이 아니라 전체 폭 */
+body.msgr .msg.desc, body.msgr .msg.handout, body.msgr .msg.general.as-desc,
+body.msgr .msg.general.npc:not(.roll) { max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; justify-content: center !important; text-align: center !important; flex-direction: row !important; }
+body.msgr .msg.general.npc:not(.roll) .mhead { justify-content: center !important; }
+</style>
+<script>(function(){var CRIT_BUILD_TS=1786929501841;setTimeout(function(){try{fetch(location.pathname,{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/CRIT_BUILD_TS ?= ?(\d+)/);if(!m)return;var latest=Number(m[1]);if(latest>CRIT_BUILD_TS&&sessionStorage.getItem("crit-seen-build")!==String(latest)){sessionStorage.setItem("crit-seen-build",String(latest));location.reload();}}).catch(function(){});}catch(e){}},1200);})();</script></body></html>
